@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await supabaseService()
       .from("feedback")
-      .select("id,category,message,page_context,created_at")
+      .select("id,category,message,page_context,github_username,contact,created_at")
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) throw error;

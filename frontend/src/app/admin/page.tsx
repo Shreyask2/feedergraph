@@ -11,7 +11,7 @@ const FLAG_LABELS: Record<string, string> = {
   new_entity_candidate: "New company candidate",
   ambiguous_fuzzy_match: "Ambiguous match",
 };
-interface Fb { id: string; category: string; message: string; page_context: string | null; created_at: string }
+interface Fb { id: string; category: string; message: string; page_context: string | null; github_username: string | null; contact: string | null; created_at: string }
 interface Ent { id: string; name: string }
 
 export default function Admin() {
@@ -87,6 +87,12 @@ export default function Admin() {
                 <p className="text-xs text-muted-foreground">
                   {f.category.replace(/_/g, " ")} · {new Date(f.created_at).toLocaleString()}{f.page_context ? ` · ${f.page_context}` : ""}
                 </p>
+                {(f.github_username || f.contact) && (
+                  <p className="flex flex-wrap gap-2 text-xs">
+                    {f.github_username && <span className="border border-sky-300 px-1 text-sky-300">@{f.github_username}</span>}
+                    {f.contact && <span className="break-all">{f.contact}</span>}
+                  </p>
+                )}
                 <p className="whitespace-pre-wrap break-words">{f.message}</p>
               </div>
             ))}

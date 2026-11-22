@@ -44,4 +44,5 @@ export const feedbackSchema = z.object({
   category: z.enum(FEEDBACK_CATEGORIES),
   message: z.string().trim().min(5).max(1000),
   page_context: z.string().max(300).optional(),
+  contact: z.string().trim().max(120).optional(),
 });

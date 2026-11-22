@@ -16,6 +16,7 @@ export function FeedbackModal() {
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<string>("bug");
   const [message, setMessage] = useState("");
+  const [contact, setContact] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [err, setErr] = useState("");
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -42,7 +43,7 @@ export function FeedbackModal() {
       const r = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category, message, page_context: window.location.pathname + window.location.search }),
+        body: JSON.stringify({ category, message, contact, page_context: window.location.pathname + window.location.search }),
       });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
@@ -114,6 +115,14 @@ export function FeedbackModal() {
                   aria-label="Message"
                   placeholder="What's on your mind?"
                   className="w-full resize-none border border-zinc-800/80 bg-transparent p-2 outline-none focus:border-sky-300"
+                />
+                <input
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  maxLength={120}
+                  aria-label="Contact for follow-up (optional)"
+                  placeholder="Optional: @handle or email for follow-up"
+                  className="w-full border border-zinc-800/80 bg-transparent px-2 py-1.5 outline-none focus:border-sky-300"
                 />
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-muted-foreground">{message.length}/1000</span>
