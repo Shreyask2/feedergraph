@@ -1,0 +1,45 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "FEEDERGRAPH" [level=1] [ref=e4]
+      - generic [ref=e15]: who feeds into google?
+      - generic [ref=e16]:
+        - button "Top Launchpads" [ref=e17]:
+          - generic [ref=e23]: Top
+          - text: Launchpads
+        - button "How It Works" [ref=e24]
+        - link "Submit Path" [ref=e25] [cursor=pointer]:
+          - /url: /submit
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - textbox "Search company" [ref=e29]:
+          - /placeholder: search company…
+        - group "Direction" [ref=e30]:
+          - button "Feeds Into google" [pressed] [ref=e31]
+          - button "Paths From google" [ref=e32]
+        - generic [ref=e33]:
+          - switch [ref=e34]
+          - checkbox [aria-hidden] [ref=e35]
+          - generic [ref=e36]: verified only
+        - group "View" [ref=e37]:
+          - button "graph" [ref=e38]
+          - button "list" [pressed] [ref=e39]
+      - generic "Quick select company" [ref=e40]:
+        - generic [ref=e41]: try
+        - button "Stripe" [ref=e42]
+        - button "NVIDIA" [ref=e43]
+        - button "Meta" [ref=e44]
+        - button "Google" [ref=e45]
+        - button "Jane Street" [ref=e46]
+        - button "Capital One" [ref=e47]
+      - group "Role filter" [ref=e48]:
+        - generic [ref=e49]: role
+        - button "All" [pressed] [ref=e50]
+        - button "SWE" [ref=e51]
+        - button "MLE / AI" [ref=e52]
+        - button "Quant" [ref=e53]
+        - button "PM" [ref=e54]
+        - button "Data" [ref=e55]
+        - button "Security" [ref=e56]
+        - button "Other" [ref=e57]
+  - button "Open Next.js Dev Tools" [ref=e63] [cursor=pointer]

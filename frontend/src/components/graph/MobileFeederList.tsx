@@ -41,7 +41,7 @@ export function MobileFeederList({ data, onFocus }: Props) {
             <div className="mt-2 flex flex-wrap items-center gap-2 font-mono text-xs tabular-nums text-muted-foreground">
               <span>{f.raw_count} interns</span>
               <span>· {f.verified_count} verified</span>
-              <span>· RO {(f.bayesian_ro_rate * 100).toFixed(0)}%</span>
+              <span>· RO {f.ro_known_total === 0 ? "—" : `${(f.bayesian_ro_rate * 100).toFixed(0)}%`}</span>
               <Badge variant="outline" className="rounded-sm font-mono">{f.confidence_level}</Badge>
               {f.top_channel && <span>· {channelLabel(f.top_channel)}</span>}
             </div>

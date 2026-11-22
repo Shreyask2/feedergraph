@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { ENTITY_TYPES } from "@/lib/schemas";
 
 interface Sub { id: string; target_company_raw: string; prior_experiences_raw: string[]; flag_reason: string | null }
+const FLAG_LABELS: Record<string, string> = {
+  new_entity_candidate: "New company candidate",
+  ambiguous_fuzzy_match: "Ambiguous match",
+};
 interface Ent { id: string; name: string }
 
 export default function Admin() {
@@ -17,23 +21,28 @@ export default function Admin() {
 
   const headers = { "x-admin-secret": secret, "Content-Type": "application/json" };
 
+  // fetch + JSON parse can throw (offline, non-JSON 5xx): surface as a message, never an unhandled rejection.
+  async function call(init?: RequestInit) {
+    try {
+      const r = await fetch("/api/admin/resolve", { headers, ...init });
+      const j = await r.json().catch(() => ({}));
+      return r.ok ? { j } : { err: (j.error as string) ?? "failed" };
+    } catch {
+      return { err: "network error" };
+    }
+  }
+
   async function load() {
-    const r = await fetch("/api/admin/resolve", { headers });
-    const j = await r.json();
-    if (!r.ok) return setMsg(j.error ?? "failed");
-    setSubs(j.submissions);
-    setEnts(j.entities);
+    const { j, err } = await call();
+    if (err) return setMsg(err);
+    setSubs(j.submissions ?? []);
+    setEnts(j.entities ?? []);
     setMsg("");
   }
 
   async function resolve(sub: Sub, raw: string, body: Record<string, string>) {
-    const r = await fetch("/api/admin/resolve", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ submission_id: sub.id, raw, ...body }),
-    });
-    const j = await r.json();
-    if (!r.ok) return setMsg(j.error ?? "failed");
+    const { err } = await call({ method: "POST", body: JSON.stringify({ submission_id: sub.id, raw, ...body }) });
+    if (err) return setMsg(err);
     setMsg(`resolved "${raw}"`);
     load();
   }
@@ -53,7 +62,7 @@ export default function Admin() {
         {subs?.length === 0 && <p className="text-muted-foreground">queue empty</p>}
         {subs?.map((s) => (
           <section key={s.id} className="border border-border p-3">
-            <p className="mb-2 text-xs text-muted-foreground">{s.flag_reason} · {s.id.slice(0, 8)}</p>
+            <p className="mb-2 text-xs text-muted-foreground">{s.flag_reason ? FLAG_LABELS[s.flag_reason] ?? s.flag_reason.replace(/_/g, " ") : "flagged"} · {s.id.slice(0, 8)}</p>
             {[s.target_company_raw, ...(s.prior_experiences_raw ?? [])].map((raw, i) => (
               <Row key={`${raw}-${i}`} raw={raw} ents={ents} onResolve={(b) => resolve(s, raw, b)} />
             ))}
@@ -70,7 +79,7 @@ function Row({ raw, ents, onResolve }: { raw: string; ents: Ent[]; onResolve: (b
   const [type, setType] = useState<string>("company");
   return (
     <div className="flex flex-wrap items-center gap-2 border-t border-border py-2 first:border-t-0">
-      <span className="min-w-40 font-bold">{raw}</span>
+      <span className="min-w-0 break-all font-bold sm:min-w-40">{raw}</span>
       <select value={entityId} onChange={(e) => setEntityId(e.target.value)} className="h-8 border border-input bg-background px-2" aria-label={`Map ${raw} to`}>
         <option value="">map to…</option>
         {ents.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}

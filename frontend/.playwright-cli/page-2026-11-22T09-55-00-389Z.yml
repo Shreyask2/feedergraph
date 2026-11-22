@@ -1,0 +1,110 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "FEEDERGRAPH" [level=1] [ref=e4]
+      - generic [ref=e16]:
+        - button "Launchpads" [ref=e67]
+        - button "Share" [ref=e71]
+        - dialog "Share path card" [ref=e154]:
+          - generic [ref=e155]:
+            - article [ref=e156]:
+              - generic [ref=e157]:
+                - generic [ref=e158]: FeederGraph
+                - generic [ref=e159]: feeds into · all roles
+              - list "Top trajectory" [ref=e160]:
+                - listitem [ref=e161]:
+                  - generic [ref=e162]: Google
+              - generic [ref=e170]:
+                - generic [ref=e171]:
+                  - term [ref=e172]: Paths
+                  - definition [ref=e173]: "0"
+                - generic [ref=e174]:
+                  - term [ref=e175]: Verified
+                  - definition [ref=e176]: 0%
+                - generic [ref=e177]:
+                  - term [ref=e178]: Smoothed RO
+                  - definition [ref=e179]: —
+              - paragraph [ref=e180]: "Top feeder: — · crowdsourced, Bayesian-smoothed"
+            - generic [ref=e181]:
+              - button "Copy Link" [ref=e182]
+              - button "Close" [active] [ref=e186]
+        - button "How It Works" [ref=e24]
+        - link "Submit" [ref=e68] [cursor=pointer]:
+          - /url: /submit
+    - generic [ref=e97]:
+      - paragraph [ref=e98]: Reverse-Engineered Tech Internship Hiring Graph
+      - generic [ref=e99]: 113 entities · 0 paths
+      - link "Submit Your Path" [ref=e100] [cursor=pointer]:
+        - /url: /submit
+      - button "Dismiss banner" [ref=e101]: ✕
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - textbox "Search company" [ref=e29]:
+          - /placeholder: search company…
+        - group "Direction" [ref=e30]:
+          - button "Feeds Into Google" [pressed] [ref=e102]
+          - button "Paths From Google" [ref=e103]
+        - generic [ref=e33]:
+          - switch "verified only" [ref=e69]
+          - checkbox [aria-hidden] [ref=e35]
+          - generic [ref=e36]: verified only
+        - group "View" [ref=e37]:
+          - button "graph" [pressed] [ref=e38]
+          - button "list" [ref=e39]
+      - generic "Quick select company" [ref=e40]:
+        - generic [ref=e41]: try
+        - button "Stripe" [ref=e42]
+        - button "NVIDIA" [ref=e43]
+        - button "Meta" [ref=e44]
+        - button "Google" [ref=e45]
+        - button "Jane Street" [ref=e46]
+        - button "Capital One" [ref=e47]
+      - group "Role filter" [ref=e48]:
+        - generic [ref=e49]: role
+        - button "All" [pressed] [ref=e50]
+        - button "SWE" [ref=e51]
+        - button "MLE / AI" [ref=e52]
+        - button "Quant" [ref=e53]
+        - button "PM" [ref=e54]
+        - button "Data" [ref=e55]
+        - button "Security" [ref=e56]
+        - button "Other" [ref=e57]
+    - generic [ref=e104]:
+      - generic [ref=e105]:
+        - term [ref=e106]: Total Paths
+        - definition [ref=e107]: "0"
+        - definition [ref=e108]: 0 feeders
+      - generic [ref=e109]:
+        - term [ref=e110]: Top Feeder
+        - definition [ref=e111]: —
+        - definition [ref=e112]: no data
+      - generic [ref=e113]:
+        - term [ref=e114]: Verified Share
+        - definition [ref=e115]: 0%
+        - definition [ref=e116]: GitHub-verified
+      - generic [ref=e117]:
+        - term [ref=e118]: Smoothed RO Rate
+        - definition [ref=e119]: —
+        - definition [ref=e120]: low conf · n=0
+    - generic [ref=e121]:
+      - generic [ref=e124]:
+        - heading "No paths mapped for Google yet" [level=2] [ref=e131]
+        - paragraph [ref=e132]: Interned here? Add where you came from or went next. Anonymous, takes a minute, and it builds the graph for the next intern.
+        - link "+ Add Google Path" [ref=e133] [cursor=pointer]:
+          - /url: /submit?company=Google
+      - complementary [ref=e134]:
+        - generic [ref=e142]:
+          - heading "Google" [level=2] [ref=e143]
+          - paragraph [ref=e144]: Company · Big Tech
+        - generic [ref=e145]:
+          - paragraph [ref=e146]: smoothed return-offer rate
+          - paragraph [ref=e147]: No RO data yet
+          - generic [ref=e148]:
+            - generic [ref=e149]: low confidence
+            - generic [ref=e150]: n=0
+        - heading "channel breakdown" [level=3] [ref=e151]
+        - paragraph [ref=e152]: No data.
+        - list
+        - paragraph [ref=e153]: By each feeder's top channel, weighted by intern count.
+  - button "Open Next.js Dev Tools" [ref=e63] [cursor=pointer]
+  - alert [ref=e70]

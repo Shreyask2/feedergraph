@@ -93,7 +93,7 @@ export function ShareCard({ data, role, shareUrl }: { data: GraphResponse; role:
                 {[
                   ["Paths", t.paths.toLocaleString()],
                   ["Verified", `${t.verifiedPct.toFixed(0)}%`],
-                  ["Smoothed RO", `${t.ro.toFixed(1)}%`],
+                  ["Smoothed RO", data.ro_known_total === 0 ? "—" : `${t.ro.toFixed(1)}%`],
                 ].map(([k, v]) => (
                   <div key={k} className="border border-zinc-800/80 bg-black/25 px-3 py-2">
                     <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{k}</dt>

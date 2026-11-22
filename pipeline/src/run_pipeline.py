@@ -4,6 +4,7 @@ Run: DATABASE_URL=... [GITHUB_TOKEN=...] python src/run_pipeline.py
 """
 import logging
 import re
+import unicodedata
 import uuid
 from dataclasses import dataclass, field
 
@@ -43,7 +44,20 @@ class Outcome:
 
 
 def _slug(key: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", key).strip("-")
+    """ASCII slug; accents fold ("café" -> "cafe") so they don't silently vanish."""
+    ascii_key = "".join(c for c in unicodedata.normalize("NFKD", key) if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "-", ascii_key.lower()).strip("-")
+
+
+def unique_slug(cur, slug: str) -> str:
+    """slug, or slug-2, slug-3... first one not already in canonical_entities (deterministic)."""
+    cand, n = slug, 1
+    while True:
+        cur.execute("SELECT 1 FROM canonical_entities WHERE slug = %s", (cand,))
+        if cur.fetchone() is None:
+            return cand
+        n += 1
+        cand = f"{slug}-{n}"
 
 
 def process_submission(sub: dict, resolver: Resolver, gh_client) -> Outcome:
@@ -122,12 +136,11 @@ def load_resolver(cur) -> Resolver:
 
 
 def apply_outcome(cur, sub_id, out: Outcome) -> None:
-    # shortcut: a slug collision (e.g. "Café" vs "Caf") raises and aborts the run; add a suffix retry if it ever happens.
     for eid, name, slug in out.new_entities:
         cur.execute(
             """INSERT INTO canonical_entities (id, name, slug, entity_type, tier)
                VALUES (%s, %s, %s, 'company', %s)""",
-            (eid, name, slug, config.STARTUP_TIER),
+            (eid, name, unique_slug(cur, slug), config.STARTUP_TIER),
         )
     for alias, eid, conf in out.new_aliases:
         cur.execute(
@@ -177,12 +190,17 @@ def run(conn, gh_client) -> dict[str, int]:
     for sub in pending:
         try:
             out = process_submission(sub, resolver, gh_client)
-        except httpx.HTTPError as exc:  # leave pending; retried next run
+        except (httpx.HTTPError, ValueError, KeyError) as exc:  # API error/timeout/rate limit/bad payload: leave pending
             log.warning("skip %s: %s", sub["id"], exc)
             counts["skipped"] += 1
             continue
-        with conn.transaction(), conn.cursor() as cur:
-            apply_outcome(cur, sub["id"], out)
+        try:
+            with conn.transaction(), conn.cursor() as cur:
+                apply_outcome(cur, sub["id"], out)
+        except psycopg.Error as exc:  # e.g. name unique clash: roll back this one, keep going
+            log.warning("skip %s: db error: %s", sub["id"], exc)
+            counts["skipped"] += 1
+            continue
         counts[out.status] += 1
     return counts
 

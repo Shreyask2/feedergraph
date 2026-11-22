@@ -1,0 +1,53 @@
+- generic [active] [ref=f1e1]:
+  - main [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - link "FEEDERGRAPH" [ref=f1e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f1e5]: submit your internship path
+    - generic [ref=f1e7]:
+      - generic [ref=f1e8]:
+        - heading "Add your internship path" [level=2] [ref=f1e9]
+        - paragraph [ref=f1e10]: Anonymous and takes a minute. Verify with GitHub and your entry counts at full weight, so verified paths move the graph most.
+      - generic [ref=f1e11]:
+        - button "Verify with GitHub (2x Trust Weight)" [disabled] [ref=f1e12]
+        - paragraph [ref=f1e15]: Optional. Accounts 30+ days old with at least one original repo count at 1.0 weight (vs 0.5). One verified entry per season. We only read your public handle.
+      - generic [ref=f1e16]:
+        - text: Target company
+        - combobox "Target company" [ref=f1e17]
+      - generic [ref=f1e18]:
+        - generic [ref=f1e19]:
+          - text: Role
+          - combobox "Role" [ref=f1e20]:
+            - option "SWE" [selected]
+            - option "MLE / AI"
+            - option "Quant"
+            - option "PM"
+            - option "Data"
+            - option "Security"
+            - option "Other"
+        - generic [ref=f1e21]:
+          - text: Season
+          - textbox "Season" [ref=f1e22]:
+            - /placeholder: Summer 2026
+      - generic [ref=f1e23]:
+        - text: Prior experiences (comma separated)
+        - textbox "Prior experiences (comma separated)" [ref=f1e24]:
+          - /placeholder: Capital One, Mozilla, FAIR
+      - generic [ref=f1e25]:
+        - generic [ref=f1e26]:
+          - text: How you got it
+          - combobox "How you got it" [ref=f1e27]:
+            - option "Cold Apply" [selected]
+            - option "Referral"
+            - option "Return Intern"
+            - option "Recruiter Outreach"
+            - option "OSS / Hackathon"
+        - generic [ref=f1e28]:
+          - text: Return offer?
+          - combobox "Return offer?" [ref=f1e29]:
+            - option "unknown / ongoing" [selected]
+            - option "yes"
+            - option "no"
+      - button "Submit path" [ref=f1e30]
+  - button "Open Next.js Dev Tools" [ref=f1e36] [cursor=pointer]
+  - alert [ref=f1e40]

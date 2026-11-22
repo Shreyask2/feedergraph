@@ -22,14 +22,16 @@ async function load(slug: string) {
     ? await db.from("canonical_entities").select("id,name").in("id", top.map(([id]) => id))
     : { data: [] };
   const nameOf = new Map((names ?? []).map((n) => [n.id, n.name as string]));
+  const roKnown = rows.reduce((n, e) => n + e.ro_known_total, 0);
   return {
     name: target.name as string,
     tier: target.tier as string,
     feeders: top.map(([id, s]) => ({ name: nameOf.get(id) ?? "?", score: s })),
     paths: rows.reduce((n, e) => n + e.raw_count, 0),
+    roKnown,
     ro: bayesianRoRate(
       rows.reduce((n, e) => n + e.ro_yes_count, 0),
-      rows.reduce((n, e) => n + e.ro_known_total, 0),
+      roKnown,
     ),
   };
 }
@@ -93,7 +95,7 @@ export async function GET(req: NextRequest) {
         <div style={{ display: "flex", alignItems: "baseline", gap: 18, fontSize: 28, color: "#a1a1aa" }}>
           {d && (
             <>
-              <span style={{ display: "flex", fontSize: 72, fontWeight: 800, color: accent }}>{(d.ro * 100).toFixed(1)}%</span>
+              <span style={{ display: "flex", fontSize: 72, fontWeight: 800, color: accent }}>{d.roKnown === 0 ? "—" : `${(d.ro * 100).toFixed(1)}%`}</span>
               <span style={{ display: "flex" }}>smoothed return-offer rate · {d.paths} paths</span>
             </>
           )}

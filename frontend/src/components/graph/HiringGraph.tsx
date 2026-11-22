@@ -122,7 +122,7 @@ function build(data: GraphResponse, feeders: Feeder[]) {
       position: { x: x0, y: height / 2 },
       data: {
         name: data.target.name,
-        sub: `RO ${(data.overall_ro_rate * 100).toFixed(0)}% · ${data.confidence_level}`,
+        sub: data.ro_known_total === 0 ? "RO — · no data" : `RO ${(data.overall_ro_rate * 100).toFixed(0)}% · ${data.confidence_level}`,
         isTarget: true,
         slug: data.target.slug,
         domain: data.target.domain,
@@ -138,7 +138,7 @@ function build(data: GraphResponse, feeders: Feeder[]) {
         position: { x: x1, y: i * ROW },
         data: {
           name: f.entity.name,
-          sub: `${f.raw_count} interns · RO ${(f.bayesian_ro_rate * 100).toFixed(0)}%`,
+          sub: `${f.raw_count} interns · RO ${f.ro_known_total === 0 ? "—" : `${(f.bayesian_ro_rate * 100).toFixed(0)}%`}`,
           isTarget: false,
           slug: f.entity.slug,
           domain: f.entity.domain,

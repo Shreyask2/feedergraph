@@ -36,4 +36,5 @@ export function normalize(raw: string): string {
   return (kept.length ? kept : tokens).join(" ");
 }
 
-export const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+// NFKD + strip combining marks so "Café" -> "cafe" (mirrors pipeline run_pipeline._slug).
+export const slugify = (s: string) => s.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

@@ -46,9 +46,11 @@ export async function POST(req: NextRequest) {
     const db = supabaseService();
     let entityId = v.entity_id;
     if (v.action === "new") {
+      const slug = slugify(v.new_name!);
+      if (!slug) return NextResponse.json({ error: "name needs latin letters or digits for a slug" }, { status: 400 });
       const { data, error } = await db
         .from("canonical_entities")
-        .insert({ name: v.new_name!, slug: slugify(v.new_name!), entity_type: v.entity_type!, tier: v.tier ?? "standard" })
+        .insert({ name: v.new_name!, slug, entity_type: v.entity_type!, tier: v.tier ?? "standard" })
         .select("id")
         .single();
       if (error) {

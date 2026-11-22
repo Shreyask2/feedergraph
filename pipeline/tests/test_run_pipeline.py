@@ -124,12 +124,14 @@ class FakeCursor:
         raise AssertionError(s)
 
     def fetchone(self):
+        if "FROM canonical_entities WHERE slug" in self.last:
+            return (1,) if self.c.log[-1][1][0] in self.c.taken else None
         return ("edge1", 3, 4)
 
 
 class FakeConn:
     def __init__(self, pending):
-        self.pending, self.log, self.tx = pending, [], 0
+        self.pending, self.log, self.tx, self.taken = pending, [], 0, set()
 
     def cursor(self):
         return FakeCursor(self)
@@ -259,3 +261,34 @@ def test_run_inserts_startup_entity_before_edges():
     assert len(ins) == 1 and ins[0] < edge[0]
     params = [p for x, p in conn.log if x.startswith("INSERT INTO canonical_entities")][0]
     assert params[1:] == ("Rove", "rove", "startup")
+
+
+def test_slug_folds_accents():
+    assert rp._slug("café") == "cafe" and rp._slug("caf") == "caf"
+
+
+def test_unique_slug_suffixes_on_collision():
+    conn = FakeConn([])
+    conn.taken = {"cafe", "cafe-2"}
+    assert rp.unique_slug(conn.cursor(), "cafe") == "cafe-3"
+    assert rp.unique_slug(conn.cursor(), "free") == "free"
+
+
+def test_run_new_entity_slug_collision_gets_suffix():
+    conn = FakeConn([("s6", "Rove", "SWE", ["Amazon"], "referral", "octo", 42, True)])
+    conn.taken = {"rove"}
+    assert rp.run(conn, gh_ok())["resolved"] == 1
+    params = [p for x, p in conn.log if x.startswith("INSERT INTO canonical_entities")][0]
+    assert params[2] == "rove-2"
+
+
+def test_run_skips_on_db_error():
+    import psycopg
+
+    conn = FakeConn([ROW])
+    real = rp.apply_outcome
+    rp.apply_outcome = lambda *a: (_ for _ in ()).throw(psycopg.errors.UniqueViolation("dup"))
+    try:
+        assert rp.run(conn, NO_GH) == {"resolved": 0, "flagged": 0, "skipped": 1}
+    finally:
+        rp.apply_outcome = real

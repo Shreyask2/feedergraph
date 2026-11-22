@@ -10,10 +10,14 @@ export async function GET(req: NextRequest) {
   const next = /^\/(?![/\\])/.test(raw) ? raw : "/submit";
 
   if (code) {
-    const supabase = await supabaseAuth();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
-    console.error("auth callback", error.message);
+    try {
+      const supabase = await supabaseAuth();
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) return NextResponse.redirect(`${origin}${next}`);
+      console.error("auth callback", error.message);
+    } catch (e) {
+      console.error("auth callback", e);
+    }
   }
   return NextResponse.redirect(`${origin}/submit?auth=failed`);
 }
