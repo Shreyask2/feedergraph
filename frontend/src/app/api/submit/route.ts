@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, after, type NextRequest } from "next/server";
 import { supabaseService } from "@/lib/supabase/service";
 import { githubIdentity, supabaseAuth } from "@/lib/supabase/auth";
 import { submitSchema } from "@/lib/schemas";
@@ -57,6 +57,23 @@ export async function POST(req: NextRequest) {
     // 23505: unique (github_user_id, internship_season) lost a race with a concurrent submit
     if (error?.code === "23505") return NextResponse.json({ error: "already submitted for this season" }, { status: 409 });
     if (error) throw error;
+
+    // Fire-and-forget pipeline trigger; a GitHub hiccup must never fail the submission.
+    const { GITHUB_REPO, GITHUB_DISPATCH_TOKEN } = process.env;
+    if (GITHUB_REPO && GITHUB_DISPATCH_TOKEN) {
+      // after() keeps the serverless function alive until the dispatch finishes.
+      after(() =>
+        fetch(`https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/pipeline.yml/dispatches`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${GITHUB_DISPATCH_TOKEN}`,
+            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ref: "main" }),
+        }).catch((e) => console.error("pipeline dispatch", e)),
+      );
+    }
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (e) {
     console.error("submit route", e);
