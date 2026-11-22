@@ -95,3 +95,9 @@
     @apply font-sans;
   }
 }
+
+/* Force light React Flow canvas; xyflow default stylesheet can otherwise win in prod. */
+.react-flow {
+  --xy-background-color: #f8fafc !important;
+  background-color: #f8fafc !important;
+}
