@@ -19,7 +19,7 @@ export function TelemetryStrip({ data }: { data: GraphResponse }) {
     { k: "Total Paths", v: t.paths.toLocaleString(), sub: `${data.feeders.length} ${inbound ? "feeders" : "destinations"}` },
     { k: inbound ? "Top Feeder" : "Top Destination", v: t.top, sub: data.feeders[0] ? `score ${data.feeders[0].weighted_score.toFixed(1)} · ${data.feeders[0].raw_count} interns` : "no data" },
     { k: "Verified Share", v: `${t.verifiedPct.toFixed(0)}%`, sub: "GitHub-verified" },
-    { k: "Smoothed RO Rate", v: `${t.ro.toFixed(1)}%`, sub: `${data.confidence_level} conf · n=${data.ro_known_total}` },
+    { k: "Smoothed RO Rate", v: data.ro_known_total === 0 ? "—" : `${t.ro.toFixed(1)}%`, sub: `${data.confidence_level} conf · n=${data.ro_known_total}` },
   ];
   return (
     <dl className="grid grid-cols-2 border-b border-zinc-800/80 font-mono tabular-nums md:grid-cols-4">

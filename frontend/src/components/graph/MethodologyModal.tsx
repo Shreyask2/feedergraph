@@ -44,7 +44,7 @@ export function MethodologyModal() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
           onClick={(e) => e.target === e.currentTarget && setOpen(false)}
         >
-          <div className="glass max-h-full w-full max-w-[560px] overflow-y-auto font-mono">
+          <div className="glass max-h-full w-full max-w-[560px] overflow-y-auto overflow-x-hidden font-mono whitespace-normal break-words">
             <header className="flex items-center justify-between border-b border-zinc-800/80 px-4 py-3">
               <h2 className="text-sm font-bold uppercase tracking-wider">How It Works</h2>
               <button
@@ -61,7 +61,7 @@ export function MethodologyModal() {
               {SECTIONS.map((s) => (
                 <section key={s.h} className="px-4 py-3">
                   <h3 className="text-xs font-bold text-sky-300">{s.h}</h3>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.p}</p>
+                  <p className="mt-1 whitespace-normal break-words text-xs leading-relaxed text-muted-foreground">{s.p}</p>
                 </section>
               ))}
             </div>
