@@ -1,0 +1,105 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { supabaseAnon } from "@/lib/supabase/server";
+import { bayesianRoRate, confidenceLevel } from "@/lib/bayesian";
+import { ROLES, type EntityLite, type Feeder, type GraphResponse } from "@/lib/types";
+
+interface EdgeRow {
+  source_entity_id: string;
+  role_category: string;
+  raw_count: number;
+  verified_count: number;
+  weighted_score: number;
+  ro_yes_count: number;
+  ro_known_total: number;
+  top_channel: string | null;
+}
+
+const COLS = "id,name,slug,entity_type,tier";
+
+export async function GET(req: NextRequest) {
+  const p = req.nextUrl.searchParams;
+  const slug = (p.get("company") ?? "").trim().toLowerCase();
+  const role = p.get("role") ?? "";
+  const verifiedOnly = p.get("verifiedOnly") === "true";
+
+  if (role && !(ROLES as readonly string[]).includes(role)) {
+    return NextResponse.json({ error: "invalid role" }, { status: 400 });
+  }
+  if (!slug) return NextResponse.json({ error: "company required" }, { status: 400 });
+
+  try {
+    const db = supabaseAnon();
+    const { data: entities, error: eErr } = await db
+      .from("canonical_entities")
+      .select(COLS)
+      .order("name");
+    if (eErr) throw eErr;
+    const all = (entities ?? []) as EntityLite[];
+    const target = all.find((e) => e.slug === slug);
+    if (!target) return NextResponse.json({ error: "company not found" }, { status: 404 });
+
+    let q = db
+      .from("feeder_edges")
+      .select(
+        "source_entity_id,role_category,raw_count,verified_count,weighted_score,ro_yes_count,ro_known_total,top_channel",
+      )
+      .eq("target_entity_id", target.id);
+    if (role) q = q.eq("role_category", role);
+    if (verifiedOnly) q = q.gt("verified_count", 0);
+    const { data: rows, error: rErr } = await q;
+    if (rErr) throw rErr;
+
+    // Collapse per-role rows into one feeder per source entity.
+    const byId = new Map(all.map((e) => [e.id, e]));
+    const agg = new Map<string, Feeder & { _best: number }>();
+    for (const r of (rows ?? []) as EdgeRow[]) {
+      const entity = byId.get(r.source_entity_id);
+      if (!entity) continue;
+      const f =
+        agg.get(entity.id) ??
+        ({
+          entity, raw_count: 0, verified_count: 0, weighted_score: 0, ro_yes_count: 0,
+          ro_known_total: 0, bayesian_ro_rate: 0, confidence_level: "low", top_channel: null, _best: -1,
+        } as Feeder & { _best: number });
+      f.raw_count += r.raw_count;
+      f.verified_count += r.verified_count;
+      f.weighted_score += Number(r.weighted_score);
+      f.ro_yes_count += r.ro_yes_count;
+      f.ro_known_total += r.ro_known_total;
+      if (r.raw_count > f._best) { f._best = r.raw_count; f.top_channel = r.top_channel; }
+      agg.set(entity.id, f);
+    }
+
+    const feeders: Feeder[] = [...agg.values()]
+      .map(({ _best, ...f }) => ({
+        ...f,
+        bayesian_ro_rate: bayesianRoRate(f.ro_yes_count, f.ro_known_total),
+        confidence_level: confidenceLevel(f.ro_known_total),
+      }))
+      .sort((a, b) => b.weighted_score - a.weighted_score);
+
+    const yes = feeders.reduce((s, f) => s + f.ro_yes_count, 0);
+    const known = feeders.reduce((s, f) => s + f.ro_known_total, 0);
+    const total = feeders.reduce((s, f) => s + f.raw_count, 0);
+    const channel_distribution: Record<string, number> = {};
+    for (const f of feeders) {
+      if (!f.top_channel) continue;
+      channel_distribution[f.top_channel] =
+        (channel_distribution[f.top_channel] ?? 0) + (total ? (f.raw_count / total) * 100 : 0);
+    }
+
+    const body: GraphResponse = {
+      target,
+      overall_ro_rate: bayesianRoRate(yes, known),
+      ro_known_total: known,
+      confidence_level: confidenceLevel(known),
+      channel_distribution,
+      feeders,
+      entities: all,
+    };
+    return NextResponse.json(body);
+  } catch (e) {
+    console.error("graph route", e);
+    return NextResponse.json({ error: "internal error" }, { status: 500 });
+  }
+}
