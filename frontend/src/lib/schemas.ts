@@ -38,3 +38,10 @@ export function normalize(raw: string): string {
 
 // NFKD + strip combining marks so "Café" -> "cafe" (mirrors pipeline run_pipeline._slug).
 export const slugify = (s: string) => s.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+export const FEEDBACK_CATEGORIES = ["bug", "missing_company", "feature", "other"] as const;
+export const feedbackSchema = z.object({
+  category: z.enum(FEEDBACK_CATEGORIES),
+  message: z.string().trim().min(5).max(1000),
+  page_context: z.string().max(300).optional(),
+});

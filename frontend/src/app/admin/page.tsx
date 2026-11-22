@@ -11,12 +11,14 @@ const FLAG_LABELS: Record<string, string> = {
   new_entity_candidate: "New company candidate",
   ambiguous_fuzzy_match: "Ambiguous match",
 };
+interface Fb { id: string; category: string; message: string; page_context: string | null; created_at: string }
 interface Ent { id: string; name: string }
 
 export default function Admin() {
   const [secret, setSecret] = useState("");
   const [subs, setSubs] = useState<Sub[] | null>(null);
   const [ents, setEnts] = useState<Ent[]>([]);
+  const [fb, setFb] = useState<Fb[] | null>(null);
   const [msg, setMsg] = useState("");
 
   const headers = { "x-admin-secret": secret, "Content-Type": "application/json" };
@@ -38,6 +40,14 @@ export default function Admin() {
     setSubs(j.submissions ?? []);
     setEnts(j.entities ?? []);
     setMsg("");
+    try {
+      const r = await fetch("/api/admin/feedback", { headers });
+      const f = await r.json().catch(() => ({}));
+      if (r.ok) setFb(f.feedback ?? []);
+      else setMsg((f.error as string) ?? "feedback load failed");
+    } catch {
+      setMsg("network error");
+    }
   }
 
   async function resolve(sub: Sub, raw: string, body: Record<string, string>) {
@@ -68,6 +78,20 @@ export default function Admin() {
             ))}
           </section>
         ))}
+        {fb && (
+          <section className="border border-border p-3">
+            <h2 className="mb-2 text-xs font-bold uppercase tracking-wider">Feedback ({fb.length})</h2>
+            {fb.length === 0 && <p className="text-muted-foreground">none yet</p>}
+            {fb.map((f) => (
+              <div key={f.id} className="border-t border-border py-2 first:border-t-0">
+                <p className="text-xs text-muted-foreground">
+                  {f.category.replace(/_/g, " ")} · {new Date(f.created_at).toLocaleString()}{f.page_context ? ` · ${f.page_context}` : ""}
+                </p>
+                <p className="whitespace-pre-wrap break-words">{f.message}</p>
+              </div>
+            ))}
+          </section>
+        )}
       </div>
     </main>
   );

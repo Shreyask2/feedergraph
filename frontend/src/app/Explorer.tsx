@@ -10,6 +10,7 @@ import { TelemetryStrip } from "@/components/graph/TelemetryStrip";
 import { TopLaunchpads } from "@/components/graph/TopLaunchpads";
 import { ShareCard } from "@/components/graph/ShareCard";
 import { MethodologyModal } from "@/components/graph/MethodologyModal";
+import { FeedbackModal } from "@/components/graph/FeedbackModal";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ROLES, type GraphResponse, type Mode } from "@/lib/types";
 
@@ -87,6 +88,7 @@ export default function Explorer() {
           <TopLaunchpads onPick={(s) => { setMode("outbound"); setTrail([s]); }} />
           {data && <ShareCard data={data} role={role} shareUrl={`${window.location.origin}/?${shareQs}`} />}
           <MethodologyModal />
+          <FeedbackModal />
           <Link href="/submit" className="font-mono text-xs font-bold underline-offset-4 hover:underline">Submit<span className="max-sm:hidden"> Path</span></Link>
         </div>
       </header>
