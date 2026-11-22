@@ -3,6 +3,9 @@
 * **Caveman Mode:** Always use Caveman terse/compressed style for all explanations and summaries until told otherwise.
 * Always read `PLAN.md` first before making architectural or schema decisions.
 * Execute strictly **one phase at a time** as requested by the user, then stop and summarize what was created and how to verify it.
+## Codebase Navigation
+- Before starting any multi-file feature or refactor, read `frontend/graphify-out/GRAPH_REPORT.md` (or `graphify-out/GRAPH_REPORT.md` if generated at root) first to understand module architecture and dependencies without reading every file from scratch.
+- If you add, rename, or reorganize multiple modules across `frontend/` or `pipeline/`, run `/graphify --update` at the end of the task so the knowledge graph stays current.
 ## Active Skills & Workflow
 * **`karpathy-guidelines`:** Keep changes surgical and minimal. Do not add unrequested abstractions, extra dependencies, or speculative features outside `PLAN.md`.
 * **`supabase-postgres-best-practices`:** Enforce strict RLS, parameterize all queries, and index foreign keys/lookup columns.

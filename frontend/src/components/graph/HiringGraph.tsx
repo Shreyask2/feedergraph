@@ -218,8 +218,9 @@ export function HiringGraph({ data, onFocus }: Props) {
     );
 
   return (
-    <div className="absolute inset-0">
+    <div className="absolute inset-0 bg-slate-50">
       <ReactFlow
+        className="!bg-slate-50"
         key={data.mode + data.target.id + data.feeders.length}
         nodes={nodes}
         edges={edges}
@@ -235,8 +236,8 @@ export function HiringGraph({ data, onFocus }: Props) {
         }}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#cbd5e1" gap={24} size={1.2} />
-        <Controls position="bottom-right" showInteractive={false} className="overflow-hidden rounded-lg border border-border shadow-sm [&_button]:border-border [&_button]:bg-card [&_button]:fill-slate-700 [&_button:hover]:bg-slate-50" />
+        <Background color="#cbd5e1" gap={20} size={1.2} />
+        <Controls position="bottom-right" showInteractive={false} className="overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-700 shadow-sm [&_button]:border-slate-200 [&_button]:bg-white [&_button]:fill-slate-700 [&_button:hover]:bg-slate-50" />
       </ReactFlow>
     </div>
   );
