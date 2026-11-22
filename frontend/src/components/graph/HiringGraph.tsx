@@ -43,7 +43,7 @@ function CompanyNodeView({ data }: NodeProps<CompanyNode>) {
   const alpha = data.isTarget ? "55" : Math.round(0x18 + data.volume * 0x40).toString(16).padStart(2, "0");
   return (
     <div
-      className={`glass flex w-56 items-center gap-2.5 rounded-lg px-2.5 py-2 font-mono text-xs transition-[background-color,box-shadow] ${
+      className={`glass flex w-56 items-center gap-2.5 px-2.5 py-2 font-mono text-xs tabular-nums transition-[background-color,box-shadow] ${
         data.isTarget ? "" : "cursor-pointer hover:bg-white/10"
       }`}
       style={{
@@ -78,7 +78,7 @@ function FeedEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targ
       {data?.share !== undefined && (
         <EdgeLabelRenderer>
           <div
-            className="nodrag nopan pointer-events-none absolute rounded-full border bg-background/90 px-1.5 py-0.5 font-mono text-[10px] whitespace-nowrap"
+            className="nodrag nopan pointer-events-none absolute rounded-sm border bg-background/90 px-1.5 py-0.5 font-mono tabular-nums text-[10px] whitespace-nowrap"
             style={{ transform: `translate(${atSource ? "0" : "-100%"},-50%) translate(${lx}px,${ly}px)`, borderColor: `${data.color}66`, color: data.color }}
           >
             {data.channel ? `${channelLabel(data.channel)} · ` : ""}

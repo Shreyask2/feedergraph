@@ -46,4 +46,6 @@ export interface GraphResponse {
   feeders: Feeder[];
   second_hop: SecondHop[];
   entities: EntityLite[];
+  /** whole-dataset totals, independent of filters */
+  totals: { entities: number; paths: number };
 }

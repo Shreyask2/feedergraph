@@ -19,7 +19,7 @@ export function MobileFeederList({ data, onFocus }: Props) {
   const max = Math.max(...feeders.map((f) => f.weighted_score), 1);
 
   return (
-    <ol className="divide-y divide-white/10">
+    <ol className="divide-y divide-zinc-800/80">
       {feeders.map((f, i) => (
         <li key={f.entity.id}>
           <button
@@ -35,14 +35,14 @@ export function MobileFeederList({ data, onFocus }: Props) {
               </span>
               <span className="shrink-0 font-mono text-sm tabular-nums">{f.weighted_score.toFixed(1)}</span>
             </div>
-            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full" style={{ width: `${(f.weighted_score / max) * 100}%`, background: tierColor(f.entity.tier) }} />
+            <div className="mt-2 h-1.5 w-full overflow-hidden bg-white/10">
+              <div className="h-full" style={{ width: `${(f.weighted_score / max) * 100}%`, background: tierColor(f.entity.tier) }} />
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground">
+            <div className="mt-2 flex flex-wrap items-center gap-2 font-mono text-xs tabular-nums text-muted-foreground">
               <span>{f.raw_count} interns</span>
               <span>· {f.verified_count} verified</span>
               <span>· RO {(f.bayesian_ro_rate * 100).toFixed(0)}%</span>
-              <Badge variant="outline">{f.confidence_level}</Badge>
+              <Badge variant="outline" className="rounded-sm font-mono">{f.confidence_level}</Badge>
               {f.top_channel && <span>· {channelLabel(f.top_channel)}</span>}
             </div>
             {hop2.has(f.entity.id) && (

@@ -16,7 +16,7 @@ export function CompanyInspector({ data }: { data: GraphResponse }) {
   const color = tierColor(data.target.tier);
 
   return (
-    <aside className="glass w-full border-x-0 border-b-0 p-4 font-mono text-xs md:w-72 md:overflow-auto md:border-y-0 md:border-r-0">
+    <aside className="w-full border-t border-zinc-800/80 bg-background/60 p-4 font-mono text-xs tabular-nums md:w-72 md:overflow-auto md:border-l md:border-t-0">
       <div className="flex items-center gap-3">
         <CompanyLogo slug={data.target.slug} domain={data.target.domain} name={data.target.name} tier={data.target.tier} className="size-10" />
         <div className="min-w-0">
@@ -27,7 +27,7 @@ export function CompanyInspector({ data }: { data: GraphResponse }) {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3">
+      <div className="mt-4 border-y border-zinc-800/80 py-3">
         <p className="text-muted-foreground uppercase">
           smoothed return-offer rate{data.mode === "outbound" && " at destinations"}
         </p>
@@ -37,7 +37,7 @@ export function CompanyInspector({ data }: { data: GraphResponse }) {
           <p className="text-3xl font-bold">{(data.overall_ro_rate * 100).toFixed(1)}%</p>
         )}
         <div className="mt-1 flex items-center gap-2">
-          <Badge variant="outline" className={CONF_STYLE[data.confidence_level]}>
+          <Badge variant="outline" className={`rounded-sm font-mono tabular-nums ${CONF_STYLE[data.confidence_level]}`}>
             {data.confidence_level} confidence
           </Badge>
           <span className="text-muted-foreground">n={data.ro_known_total}</span>
@@ -53,8 +53,8 @@ export function CompanyInspector({ data }: { data: GraphResponse }) {
               <span>{channelLabel(c)}</span>
               <span>{pct.toFixed(0)}%</span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+            <div className="h-1 overflow-hidden bg-white/10">
+              <div className="h-full" style={{ width: `${pct}%`, background: color }} />
             </div>
           </li>
         ))}

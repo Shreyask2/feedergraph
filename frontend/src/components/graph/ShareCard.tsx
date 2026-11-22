@@ -48,9 +48,9 @@ export function ShareCard({ data, role, shareUrl }: { data: GraphResponse; role:
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 font-mono text-xs font-bold hover:border-white/30"
+        className="inline-flex items-center gap-1.5 border border-zinc-800/80 px-2 py-0.5 font-mono text-xs font-bold hover:border-white/30"
       >
-        <Share2 className="size-3.5" /> Share Path Card
+        <Share2 className="size-3.5" /> <span className="max-sm:hidden">Share Path Card</span><span className="sm:hidden">Share</span>
       </button>
 
       {open && (
@@ -64,7 +64,7 @@ export function ShareCard({ data, role, shareUrl }: { data: GraphResponse; role:
           <div className="w-full max-w-[560px]">
             {/* The card itself: fixed composition so screenshots look the same everywhere. */}
             <article
-              className="relative overflow-hidden rounded-2xl border border-white/15 bg-[oklch(0.15_0.012_255)] p-6"
+              className="relative overflow-hidden border border-zinc-800/80 bg-[oklch(0.15_0.012_255)] p-6"
               style={{ backgroundImage: `radial-gradient(ellipse 70% 60% at 100% 0%, ${accent}2e, transparent 70%)` }}
             >
               <header className="flex items-baseline justify-between font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -95,7 +95,7 @@ export function ShareCard({ data, role, shareUrl }: { data: GraphResponse; role:
                   ["Verified", `${t.verifiedPct.toFixed(0)}%`],
                   ["Smoothed RO", `${t.ro.toFixed(1)}%`],
                 ].map(([k, v]) => (
-                  <div key={k} className="rounded-lg border border-white/10 bg-black/25 px-3 py-2">
+                  <div key={k} className="border border-zinc-800/80 bg-black/25 px-3 py-2">
                     <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{k}</dt>
                     <dd className="text-xl font-bold tabular-nums">{v}</dd>
                   </div>

@@ -22,14 +22,14 @@ export function TelemetryStrip({ data }: { data: GraphResponse }) {
     { k: "Smoothed RO Rate", v: `${t.ro.toFixed(1)}%`, sub: `${data.confidence_level} conf · n=${data.ro_known_total}` },
   ];
   return (
-    <dl className="grid grid-cols-2 border-b border-border font-mono md:grid-cols-4">
+    <dl className="grid grid-cols-2 border-b border-zinc-800/80 font-mono tabular-nums md:grid-cols-4">
       {stats.map((s, i) => (
         <div
           key={s.k}
-          className={`min-w-0 px-4 py-2 ${i % 2 ? "border-l border-border" : ""} ${i > 1 ? "border-t border-border md:border-t-0" : ""} ${i === 2 ? "md:border-l" : ""}`}
+          className={`min-w-0 px-4 py-1.5 ${i % 2 ? "border-l border-zinc-800/80" : ""} ${i > 1 ? "border-t border-zinc-800/80 md:border-t-0" : ""} ${i === 2 ? "md:border-l" : ""}`}
         >
           <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{s.k}</dt>
-          <dd className="truncate text-lg font-bold leading-tight tabular-nums">{s.v}</dd>
+          <dd className="truncate text-lg font-bold leading-tight">{s.v}</dd>
           <dd className="truncate text-[10px] text-muted-foreground">{s.sub}</dd>
         </div>
       ))}

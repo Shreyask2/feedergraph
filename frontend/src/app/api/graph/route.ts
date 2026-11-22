@@ -116,6 +116,10 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const { data: allEdges, error: tErr } = await db.from("feeder_edges").select("raw_count");
+    if (tErr) throw tErr;
+    const totalPaths = (allEdges ?? []).reduce((n, r) => n + (r.raw_count as number), 0);
+
     const yes = feeders.reduce((s, f) => s + f.ro_yes_count, 0);
     const known = feeders.reduce((s, f) => s + f.ro_known_total, 0);
     const total = feeders.reduce((s, f) => s + f.raw_count, 0);
@@ -136,6 +140,7 @@ export async function GET(req: NextRequest) {
       feeders,
       second_hop,
       entities: all,
+      totals: { entities: all.length, paths: totalPaths },
     };
     return NextResponse.json(body);
   } catch (e) {

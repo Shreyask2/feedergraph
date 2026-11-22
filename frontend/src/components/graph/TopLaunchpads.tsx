@@ -35,9 +35,9 @@ export function TopLaunchpads({ onPick }: { onPick: (slug: string) => void }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 font-mono text-xs font-bold hover:border-white/30"
+        className="inline-flex items-center gap-1.5 border border-zinc-800/80 px-2 py-0.5 font-mono text-xs font-bold hover:border-white/30"
       >
-        <Rocket className="size-3.5" /> Top Launchpads
+        <Rocket className="size-3.5" /> <span className="max-sm:hidden">Top </span>Launchpads
       </button>
 
       {open && (
@@ -48,7 +48,7 @@ export function TopLaunchpads({ onPick }: { onPick: (slug: string) => void }) {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
           onClick={(e) => e.target === e.currentTarget && setOpen(false)}
         >
-          <div className="glass max-h-full w-full max-w-[560px] overflow-y-auto rounded-2xl border border-white/15 p-5 font-mono">
+          <div className="glass max-h-full w-full max-w-[560px] overflow-y-auto border border-zinc-800/80 p-5 font-mono">
             <header className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-base font-bold">Top Launchpad Companies</h2>
@@ -78,7 +78,7 @@ export function TopLaunchpads({ onPick }: { onPick: (slug: string) => void }) {
                       onPick(r.entity.slug);
                       setOpen(false);
                     }}
-                    className="flex w-full items-center gap-3 rounded-lg border border-border px-3 py-2 text-left hover:border-white/30 hover:bg-white/5"
+                    className="flex w-full items-center gap-3 border border-zinc-800/80 px-3 py-2 text-left hover:border-white/30 hover:bg-white/5"
                   >
                     <span className="w-5 text-right text-xs tabular-nums text-muted-foreground">{i + 1}</span>
                     <CompanyLogo slug={r.entity.slug} domain={r.entity.domain} name={r.entity.name} tier={r.entity.tier} className="size-7" />

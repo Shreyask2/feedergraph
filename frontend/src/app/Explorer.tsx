@@ -9,6 +9,8 @@ import { CompanyInspector } from "@/components/graph/CompanyInspector";
 import { TelemetryStrip } from "@/components/graph/TelemetryStrip";
 import { TopLaunchpads } from "@/components/graph/TopLaunchpads";
 import { ShareCard } from "@/components/graph/ShareCard";
+import { MethodologyModal } from "@/components/graph/MethodologyModal";
+import { BrandLogo } from "@/components/BrandLogo";
 import { ROLES, type GraphResponse, type Mode } from "@/lib/types";
 
 const DEFAULT_COMPANY = "google";
@@ -20,6 +22,8 @@ export default function Explorer() {
   const [view, setView] = useState<View>("list");
   const [mode, setMode] = useState<Mode>("inbound");
   const [ready, setReady] = useState(false);
+  // Hero shows only on a bare URL; captured at load because replaceState adds ?company= right after.
+  const [showHero, setShowHero] = useState(false);
   const [data, setData] = useState<GraphResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const company = trail[trail.length - 1];
@@ -33,6 +37,7 @@ export default function Explorer() {
     const q = new URLSearchParams(window.location.search);
     const c = q.get("company")?.trim().toLowerCase();
     if (c && /^[a-z0-9-]{1,80}$/.test(c)) setTrail([c]);
+    setShowHero(!q.has("company"));
     if (q.get("mode") === "outbound") setMode("outbound");
     const r = q.get("role");
     if (r && (ROLES as readonly string[]).includes(r)) setRole(r);
@@ -73,17 +78,37 @@ export default function Explorer() {
 
   return (
     <main className="terminal-bg flex h-dvh flex-col">
-      <header className="flex flex-wrap items-baseline gap-x-3 border-b border-border px-4 py-2">
-        <h1 className="font-mono text-lg font-bold tracking-tight">FEEDERGRAPH</h1>
-        <span className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground">
+      <header className="flex flex-wrap items-center gap-x-3 border-b border-zinc-800/80 px-4 py-1.5">
+        <h1><BrandLogo /></h1>
+        <span className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground max-sm:hidden">
           {mode === "inbound" ? "who feeds into" : "where do alumni go from"} {data?.target.name ?? nameOf(company)}?
         </span>
-        <div className="flex items-center gap-3 self-center">
+        <div className="flex w-full items-center justify-between gap-2 self-center sm:gap-3 whitespace-nowrap sm:ml-auto sm:w-auto sm:justify-start">
           <TopLaunchpads onPick={(s) => { setMode("outbound"); setTrail([s]); }} />
           {data && <ShareCard data={data} role={role} shareUrl={`${window.location.origin}/?${shareQs}`} />}
-          <Link href="/submit" className="font-mono text-xs font-bold underline-offset-4 hover:underline">Submit Path</Link>
+          <MethodologyModal />
+          <Link href="/submit" className="font-mono text-xs font-bold underline-offset-4 hover:underline">Submit<span className="max-sm:hidden"> Path</span></Link>
         </div>
       </header>
+
+      {showHero && data && (
+        <section className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-zinc-800/80 bg-sky-400/5 px-4 py-1.5 font-mono text-xs">
+          <p className="min-w-0 basis-full sm:flex-1 sm:basis-0">
+            <span className="font-bold">Reverse-Engineered Tech Internship Hiring Graph</span>
+            <span className="text-muted-foreground max-sm:hidden"> · Built for Direct Consideration</span>
+          </p>
+          <span className="mr-auto tabular-nums text-muted-foreground sm:mr-0">
+            <b className="text-foreground">{data.totals.entities.toLocaleString()}</b> entities ·{" "}
+            <b className="text-foreground">{data.totals.paths.toLocaleString()}</b> paths
+          </span>
+          <Link href="/submit" className="border border-sky-400/60 px-2 py-0.5 font-bold text-sky-200 hover:bg-sky-400/15">
+            Submit Your Path
+          </Link>
+          <button type="button" onClick={() => setShowHero(false)} aria-label="Dismiss banner" className="px-1 text-muted-foreground hover:text-foreground">
+            ✕
+          </button>
+        </section>
+      )}
 
       <GraphControls
         entities={data?.entities ?? []}
@@ -101,7 +126,7 @@ export default function Explorer() {
       />
 
       {trail.length > 1 && (
-        <nav className="flex flex-wrap items-center gap-1 border-b border-border px-4 py-1 font-mono text-xs">
+        <nav className="flex flex-wrap items-center gap-1 border-b border-zinc-800/80 px-4 py-1 font-mono text-xs">
           {trail.map((s, i) => (
             <button
               key={`${s}-${i}`}
@@ -116,7 +141,7 @@ export default function Explorer() {
           <button
             type="button"
             onClick={() => setTrail([trail[0]])}
-            className="ml-auto rounded border border-border px-2 py-0.5 uppercase text-muted-foreground hover:text-foreground"
+            className="ml-auto border border-zinc-800/80 px-2 py-0.5 uppercase text-muted-foreground hover:text-foreground"
           >
             Reset
           </button>

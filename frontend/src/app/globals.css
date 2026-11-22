@@ -138,7 +138,6 @@
   background-size: 100% 100%, 32px 32px, 32px 32px;
 }
 .glass {
-  background: oklch(0.2 0.012 255 / 70%);
-  border: 1px solid oklch(1 0 0 / 12%);
-  backdrop-filter: blur(10px);
+  background: oklch(0.15 0.008 255);
+  border: 1px solid rgb(39 39 42 / 80%);
 }
