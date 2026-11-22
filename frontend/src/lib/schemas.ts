@@ -3,7 +3,7 @@ import { ROLES } from "@/lib/types";
 
 export const CHANNELS = ["cold_apply", "referral", "return_intern", "recruiter_outreach", "hackathon_oss"] as const;
 export const ENTITY_TYPES = ["company", "oss_org", "research_lab"] as const;
-export const TIERS = ["neolab", "quant", "big_tech", "fintech", "standard"] as const;
+export const TIERS = ["neolab", "quant", "big_tech", "fintech", "standard", "startup"] as const;
 
 const name = z.string().trim().min(1).max(100);
 
@@ -13,12 +13,6 @@ export const submitSchema = z.object({
   internship_season: z.string().trim().regex(/^(Summer|Fall|Winter|Spring) 20\d{2}$/, "e.g. Summer 2026"),
   prior_experiences_raw: z.array(name).max(10).default([]),
   channel: z.enum(CHANNELS),
-  github_username: z
-    .string()
-    .trim()
-    .regex(/^[a-zA-Z\d](?:[a-zA-Z\d-]{0,38})$/, "invalid GitHub username")
-    .nullish()
-    .transform((v) => v || null),
   received_return_offer: z.boolean().nullable().default(null),
 });
 

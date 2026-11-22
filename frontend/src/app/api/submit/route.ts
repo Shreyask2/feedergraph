@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseService } from "@/lib/supabase/service";
+import { githubIdentity, supabaseAuth } from "@/lib/supabase/auth";
 import { submitSchema } from "@/lib/schemas";
 import { ipHash } from "@/lib/ip";
 
@@ -18,7 +19,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // GitHub identity comes only from the verified OAuth session, never the request body.
+    const { data: auth } = await (await supabaseAuth()).auth.getUser();
+    const gh = githubIdentity(auth.user);
+
     const db = supabaseService();
+    if (gh) {
+      const { count: dup, error: dErr } = await db
+        .from("submissions")
+        .select("id", { count: "exact", head: true })
+        .eq("github_user_id", gh.id)
+        .eq("internship_season", parsed.data.internship_season);
+      if (dErr) throw dErr;
+      if ((dup ?? 0) > 0) {
+        return NextResponse.json({ error: `@${gh.handle} already submitted for ${parsed.data.internship_season}` }, { status: 409 });
+      }
+    }
     const hash = ipHash(req);
     const since = new Date(Date.now() - 3600_000).toISOString();
     const { count, error: cErr } = await db
@@ -31,7 +47,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "rate limit: max 5 submissions per hour" }, { status: 429, headers: { "Retry-After": "3600" } });
     }
 
-    const { error } = await db.from("submissions").insert({ ...parsed.data, ip_hash: hash, status: "pending" });
+    const { error } = await db.from("submissions").insert({
+      ...parsed.data,
+      github_username: gh?.handle ?? null,
+      github_user_id: gh?.id ?? null,
+      ip_hash: hash,
+      status: "pending",
+    });
+    // 23505: unique (github_user_id, internship_season) lost a race with a concurrent submit
+    if (error?.code === "23505") return NextResponse.json({ error: "already submitted for this season" }, { status: 409 });
     if (error) throw error;
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (e) {

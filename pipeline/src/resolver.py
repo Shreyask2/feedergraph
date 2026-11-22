@@ -9,11 +9,18 @@ from rapidfuzz import fuzz, process
 from config import CORPORATE_SUFFIXES, FUZZY_AMBIGUOUS, FUZZY_AUTO_RESOLVE
 
 _PUNCT = re.compile(r"[^\w\s]|_")
+# YC batch tags: "(YC W24)", "YC S25", "[YC X25]". Seasons: W/S/F/X.
+_YC_TAG = re.compile(r"[(\[]?\s*\byc\s*[wsfx]\s?'?\d{2}\b\s*[)\]]?", re.IGNORECASE)
+
+
+def clean_name(raw: str) -> str:
+    """Display name for a new entity: YC tag removed, whitespace collapsed, case kept."""
+    return " ".join(_YC_TAG.sub(" ", raw).split())
 
 
 def normalize(raw: str) -> str:
     """Lowercase, drop punctuation, strip corporate suffix tokens."""
-    tokens = _PUNCT.sub(" ", raw.lower()).split()
+    tokens = _PUNCT.sub(" ", _YC_TAG.sub(" ", raw).lower()).split()
     kept = [t for t in tokens if t not in CORPORATE_SUFFIXES]
     # a name made only of suffix words ("Labs") keeps them rather than vanishing
     return " ".join(kept or tokens)
@@ -53,6 +60,14 @@ class Resolver:
             if verified:
                 self._fuzzy.setdefault(key, eid)
         self._choices = list(self._fuzzy)
+
+    def add_entity(self, name: str, eid: str) -> None:
+        """Register an entity created mid-run so later submissions match it."""
+        key = normalize(name)
+        self._exact[key] = eid
+        if key not in self._fuzzy:
+            self._fuzzy[key] = eid
+            self._choices.append(key)
 
     def resolve(self, raw: str) -> Resolution:
         key = normalize(raw)

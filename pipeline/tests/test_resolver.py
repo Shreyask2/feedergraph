@@ -1,7 +1,7 @@
 import pytest
 
 import config
-from resolver import Resolver, load_seed_aliases, normalize
+from resolver import Resolver, clean_name, load_seed_aliases, normalize
 
 ENTITIES = {
     "Amazon": "id-amzn",
@@ -35,6 +35,13 @@ def r():
         ("Labs", "labs"),  # suffix-only name is kept
         ("", ""),
         ("!!!", ""),
+        ("Rove (YC W24)", "rove"),
+        ("Rove (yc s25)", "rove"),
+        ("Acme [YC X25] Inc", "acme"),
+        ("Acme YC F24", "acme"),
+        ("Rove (YC W'24)", "rove"),
+        ("YC Partners", "yc partners"),  # bare "YC" word is not a batch tag
+        ("Cyclone W24", "cyclone w24"),  # "yc" inside a word is not a tag
     ],
 )
 def test_normalize(raw, expected):
@@ -146,3 +153,31 @@ def test_seed_aliases_resolve_end_to_end():
         res = r.resolve(alias)
         assert res.status == "resolved", alias
         assert res.entity_id == f"id-{canonical}", alias
+
+
+@pytest.mark.parametrize(
+    "raw,expected",
+    [("Rove (YC W24)", "Rove"), ("  Acme   AI (YC S25) ", "Acme AI"), ("Plain", "Plain"), ("(YC W24)", "")],
+)
+def test_clean_name(raw, expected):
+    assert clean_name(raw) == expected
+
+
+def test_yc_tag_resolves_to_existing(r):
+    res = r.resolve("Jane Street (YC W24)")
+    assert (res.status, res.entity_id, res.method) == ("resolved", "id-js", "exact")
+
+
+def test_add_entity_exact_and_fuzzy():
+    r = Resolver({"Amazon": "A"}, {})
+    assert r.resolve("Rove").flag_reason == "new_entity_candidate"
+    r.add_entity("Rove", "R")
+    assert r.resolve("Rove (YC W24)").entity_id == "R"
+    assert r.resolve("Rovee").entity_id == "R"  # now a fuzzy choice too
+
+
+def test_add_entity_idempotent():
+    r = Resolver({}, {})
+    r.add_entity("Rove", "R")
+    r.add_entity("Rove", "R")
+    assert r._choices == ["rove"]

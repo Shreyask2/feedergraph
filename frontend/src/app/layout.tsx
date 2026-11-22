@@ -13,6 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // absolute base so og:image resolves; set NEXT_PUBLIC_SITE_URL in production
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "FeederGraph",
   description: "Where tech interns come from, and which internships convert.",
 };

@@ -3,6 +3,8 @@
 Run: DATABASE_URL=... [GITHUB_TOKEN=...] python src/run_pipeline.py
 """
 import logging
+import re
+import uuid
 from dataclasses import dataclass, field
 
 import httpx
@@ -11,7 +13,7 @@ import psycopg
 import config
 from bayesian import bayesian_ro_rate, confidence_level
 from github_enricher import GitHubResult, enrich, make_client
-from resolver import Resolver, load_seed_aliases, normalize
+from resolver import Resolution, Resolver, clean_name, load_seed_aliases, normalize
 
 log = logging.getLogger("pipeline")
 
@@ -36,31 +38,48 @@ class Outcome:
     prior_ids: list[str] = field(default_factory=list)
     github: GitHubResult = field(default_factory=GitHubResult)
     new_aliases: list[tuple[str, str, float]] = field(default_factory=list)  # alias, entity, conf
+    new_entities: list[tuple[str, str, str]] = field(default_factory=list)  # id, name, slug
     edges: list[EdgeDelta] = field(default_factory=list)
 
 
+def _slug(key: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", key).strip("-")
+
+
 def process_submission(sub: dict, resolver: Resolver, gh_client) -> Outcome:
-    """Pure decision logic for one pending submission (no DB access)."""
+    """Pure decision logic for one pending submission (no DB access).
+
+    github_verified submissions auto-create unknown companies (score < 78) as
+    tier 'startup'; unverified ones still go to the /admin moderation gate."""
+    gh = enrich(sub["github_username"], sub.get("github_user_id"), gh_client)
+    verified = gh.verification_tier == "github_verified"
     new_aliases: list[tuple[str, str, float]] = []
+    new_entities: list[tuple[str, str, str]] = []
 
     def resolve(raw: str):
         res = resolver.resolve(raw)
         if res.new_alias:
             new_aliases.append((res.new_alias, res.entity_id, res.confidence))
+        if verified and res.flag_reason == "new_entity_candidate":
+            name, key = clean_name(raw), normalize(raw)
+            if name and _slug(key):
+                eid = str(uuid.uuid4())
+                new_entities.append((eid, name, _slug(key)))
+                resolver.add_entity(name, eid)
+                return Resolution("resolved", eid, "exact", 1.0)
         return res
 
     target = resolve(sub["target_company_raw"])
     if target.status == "flagged":
-        return Outcome("flagged", target.flag_reason)
+        return Outcome("flagged", target.flag_reason, new_entities=new_entities)
 
     prior_ids: list[str] = []
     for raw in sub["prior_experiences_raw"] or []:
         res = resolve(raw)
         if res.status == "flagged":
-            return Outcome("flagged", res.flag_reason)
+            return Outcome("flagged", res.flag_reason, new_entities=new_entities)
         prior_ids.append(res.entity_id)
 
-    gh = enrich(sub["github_username"], gh_client)
     ro = sub["received_return_offer"]
     edges = [
         EdgeDelta(
@@ -72,11 +91,11 @@ def process_submission(sub: dict, resolver: Resolver, gh_client) -> Outcome:
         for src in dict.fromkeys(prior_ids)
         if src != target.entity_id
     ]
-    return Outcome("resolved", None, target.entity_id, prior_ids, gh, new_aliases, edges)
+    return Outcome("resolved", None, target.entity_id, prior_ids, gh, new_aliases, new_entities, edges)
 
 
 _PENDING = """SELECT id, target_company_raw, role_category, prior_experiences_raw,
-  channel, github_username, received_return_offer
+  channel, github_username, github_user_id, received_return_offer
   FROM submissions WHERE status = 'pending' ORDER BY created_at"""
 
 _UPSERT_EDGE = """INSERT INTO feeder_edges (source_entity_id, target_entity_id, role_category,
@@ -103,6 +122,13 @@ def load_resolver(cur) -> Resolver:
 
 
 def apply_outcome(cur, sub_id, out: Outcome) -> None:
+    # shortcut: a slug collision (e.g. "Café" vs "Caf") raises and aborts the run; add a suffix retry if it ever happens.
+    for eid, name, slug in out.new_entities:
+        cur.execute(
+            """INSERT INTO canonical_entities (id, name, slug, entity_type, tier)
+               VALUES (%s, %s, %s, 'company', %s)""",
+            (eid, name, slug, config.STARTUP_TIER),
+        )
     for alias, eid, conf in out.new_aliases:
         cur.execute(
             """INSERT INTO entity_aliases (alias, entity_id, match_method, confidence, is_verified)
@@ -144,7 +170,7 @@ def run(conn, gh_client) -> dict[str, int]:
         pending = [
             dict(zip(
                 ("id", "target_company_raw", "role_category", "prior_experiences_raw",
-                 "channel", "github_username", "received_return_offer"), row))
+                 "channel", "github_username", "github_user_id", "received_return_offer"), row))
             for row in cur.fetchall()
         ]
     counts = {"resolved": 0, "flagged": 0, "skipped": 0}

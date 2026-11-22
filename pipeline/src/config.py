@@ -21,6 +21,9 @@ TRUST_UNVERIFIED = 0.50
 TRUST_GITHUB_VERIFIED = 1.00
 
 GITHUB_API = "https://api.github.com"
+GITHUB_MIN_ACCOUNT_AGE_DAYS = 30
+
+STARTUP_TIER = "startup"  # auto-created entities from github_verified submissions
 
 
 @dataclass(frozen=True)

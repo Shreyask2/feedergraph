@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -127,4 +127,18 @@
   html {
     @apply font-sans;
   }
+}
+/* Terminal-style backdrop: faint grid + radial glow. */
+.terminal-bg {
+  background-color: oklch(0.13 0.01 255);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 50% 0%, oklch(0.55 0.15 235 / 14%), transparent 70%),
+    linear-gradient(oklch(1 0 0 / 3.5%) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 3.5%) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
+}
+.glass {
+  background: oklch(0.2 0.012 255 / 70%);
+  border: 1px solid oklch(1 0 0 / 12%);
+  backdrop-filter: blur(10px);
 }
