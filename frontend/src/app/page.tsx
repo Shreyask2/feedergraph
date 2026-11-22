@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { GraphControls, type View } from "@/components/graph/GraphControls";
 import { HiringGraph } from "@/components/graph/HiringGraph";
 import { MobileFeederList } from "@/components/graph/MobileFeederList";
@@ -46,6 +47,7 @@ export default function Explorer() {
       <header className="flex items-baseline gap-3 border-b border-border px-4 py-2">
         <h1 className="font-mono text-lg font-bold tracking-tight">FEEDERGRAPH</h1>
         <span className="font-mono text-xs text-muted-foreground">who feeds into {data?.target.name ?? company}?</span>
+        <Link href="/submit" className="ml-auto font-mono text-xs font-bold underline-offset-4 hover:underline">Submit Path</Link>
       </header>
 
       <GraphControls
