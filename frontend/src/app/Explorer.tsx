@@ -77,10 +77,21 @@ export default function Explorer() {
       return i === -1 ? [...t, slug] : t.slice(0, i + 1);
     });
 
+  const resetAll = () => {
+    setTrail([DEFAULT_COMPANY]);
+    setMode("inbound");
+    setRole("");
+    setError(null);
+  };
+
   return (
     <main className="terminal-bg flex h-dvh flex-col">
       <header className="flex flex-wrap items-center gap-x-3 border-b border-zinc-800/80 px-4 py-1.5">
-        <h1><BrandLogo /></h1>
+        <h1>
+          <Link href="/" aria-label="FeederGraph home" onClick={(e) => { e.preventDefault(); resetAll(); }}>
+            <BrandLogo />
+          </Link>
+        </h1>
         <span className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground max-sm:hidden">
           {mode === "inbound" ? "who feeds into" : "where do alumni go from"} {data?.target.name ?? nameOf(company)}?
         </span>
@@ -150,7 +161,14 @@ export default function Explorer() {
         </nav>
       )}
 
-      {error && <p className="p-4 font-mono text-sm text-destructive">Error: {error}</p>}
+      {error && (
+        <div className="p-4 font-mono text-sm">
+          <p className="text-destructive">Error: {error}</p>
+          <button type="button" onClick={resetAll} className="mt-2 border border-zinc-800/80 px-2 py-0.5 font-bold hover:bg-zinc-800/50">
+            Return to Default Graph
+          </button>
+        </div>
+      )}
 
       {data && <TelemetryStrip data={data} />}
 
