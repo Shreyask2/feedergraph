@@ -79,7 +79,7 @@ function FeedEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targ
         <EdgeLabelRenderer>
           <div
             className="nodrag nopan pointer-events-none absolute rounded-sm border bg-background/90 px-1.5 py-0.5 font-mono tabular-nums text-[10px] whitespace-nowrap"
-            style={{ transform: `translate(${atSource ? "0" : "-100%"},-50%) translate(${lx}px,${ly}px)`, borderColor: `${data.color}66`, color: data.color }}
+            style={{ zIndex: 1000, transform: `translate(${atSource ? "0" : "-100%"},-50%) translate(${lx}px,${ly}px)`, borderColor: `${data.color}66`, color: data.color }}
           >
             {data.channel ? `${channelLabel(data.channel)} · ` : ""}
             {data.share.toFixed(0)}%
@@ -96,7 +96,7 @@ const edgeTypes: EdgeTypes = { feed: FeedEdge };
 
 /** Rows drawn on the canvas (list view shows all). Keep in sync with HOP_LIMIT in /api/graph. */
 const GRAPH_LIMIT = 12;
-const COL = 340; // horizontal gap between hop columns
+const COL = 400; // horizontal gap between hop columns
 const ROW = 84; // vertical pitch per 1st-degree node
 
 /**
