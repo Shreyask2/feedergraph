@@ -5,3 +5,4 @@ skills-lock.json
 __pycache__/
 .pytest_cache/
 graphify-out/
+brag-output/

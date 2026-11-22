@@ -114,7 +114,7 @@ export default function Explorer() {
             <X className="size-4" />
           </button>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-medium text-blue-700">Built for the Direct Consideration community</p>
+            <p className="text-sm font-medium text-blue-700">Built for the community</p>
             <h2 className="mt-2 font-serif text-4xl leading-[1.1] font-semibold tracking-tight text-slate-900 sm:text-5xl">
               Where tech interns <em className="text-blue-700">actually</em> come from
             </h2>
