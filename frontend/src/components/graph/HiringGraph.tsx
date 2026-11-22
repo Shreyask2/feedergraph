@@ -19,7 +19,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import type { Feeder, GraphResponse, SecondHop } from "@/lib/types";
-import { channelLabel, tierColor } from "@/lib/labels";
+import { channelLabel, confidenceWord, tierColor, tierLabel } from "@/lib/labels";
 import { CompanyLogo } from "./CompanyLogo";
 import { EmptyPaths } from "./EmptyPaths";
 
@@ -30,8 +30,6 @@ type CompanyData = {
   slug: string;
   domain?: string | null;
   tier: string;
-  /** 0..1 share of max intern volume; drives border glow */
-  volume: number;
   /** 2nd-degree node: drawn at 65% opacity */
   faded: boolean;
 };
@@ -39,24 +37,20 @@ type CompanyNode = Node<CompanyData, "company">;
 
 function CompanyNodeView({ data }: NodeProps<CompanyNode>) {
   const c = tierColor(data.tier);
-  const glow = data.isTarget ? 28 : Math.round(4 + data.volume * 18);
-  const alpha = data.isTarget ? "55" : Math.round(0x18 + data.volume * 0x40).toString(16).padStart(2, "0");
   return (
     <div
-      className={`glass flex w-56 items-center gap-2.5 px-2.5 py-2 font-mono text-xs tabular-nums transition-[background-color,box-shadow] ${
-        data.isTarget ? "" : "cursor-pointer hover:bg-white/10"
-      }`}
-      style={{
-        opacity: data.faded ? 0.65 : 1,
-        borderColor: data.isTarget ? c : `${c}${data.faded ? "40" : "70"}`,
-        boxShadow: `0 0 ${glow}px ${c}${alpha}`,
-      }}
+      className={`flex w-64 items-center gap-3 rounded-xl border bg-card px-3 py-2.5 shadow-sm transition-shadow ${
+        data.isTarget ? "border-blue-700 ring-2 ring-blue-700/15" : "cursor-pointer border-border hover:border-slate-300 hover:shadow-md"
+      } ${data.faded ? "opacity-70" : ""}`}
     >
       <Handle type="target" position={Position.Left} className="opacity-0" />
-      <CompanyLogo slug={data.slug} domain={data.domain} name={data.name} tier={data.tier} className={data.isTarget ? "size-9" : "size-8"} />
-      <div className="min-w-0">
-        <div className={`truncate font-bold ${data.isTarget ? "text-base" : "text-sm"}`}>{data.name}</div>
-        <div className="truncate text-muted-foreground">{data.sub}</div>
+      <CompanyLogo slug={data.slug} domain={data.domain} name={data.name} tier={data.tier} className={data.isTarget ? "size-10" : "size-9"} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <span className={`truncate font-semibold text-slate-900 ${data.isTarget ? "text-base" : "text-sm"}`}>{data.name}</span>
+          <span className="shrink-0 rounded-full px-1.5 py-px text-[11px] font-medium" style={{ color: c, background: `${c}14` }}>{tierLabel(data.tier)}</span>
+        </div>
+        <div className="truncate text-xs text-slate-500 tabular-nums">{data.sub}</div>
       </div>
       <Handle type="source" position={Position.Right} className="opacity-0" />
     </div>
@@ -78,8 +72,8 @@ function FeedEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targ
       {data?.share !== undefined && (
         <EdgeLabelRenderer>
           <div
-            className="nodrag nopan pointer-events-none absolute rounded-sm border bg-background/90 px-1.5 py-0.5 font-mono tabular-nums text-[10px] whitespace-nowrap"
-            style={{ zIndex: 1000, transform: `translate(${atSource ? "0" : "-100%"},-50%) translate(${lx}px,${ly}px)`, borderColor: `${data.color}66`, color: data.color }}
+            className="nodrag nopan pointer-events-none absolute rounded-full border border-border bg-card px-2 py-0.5 text-[11px] font-medium text-slate-600 shadow-sm tabular-nums whitespace-nowrap"
+            style={{ zIndex: 1000, transform: `translate(${atSource ? "0" : "-100%"},-50%) translate(${lx}px,${ly}px)` }}
           >
             {data.channel ? `${channelLabel(data.channel)} · ` : ""}
             {data.share.toFixed(0)}%
@@ -96,7 +90,7 @@ const edgeTypes: EdgeTypes = { feed: FeedEdge };
 
 /** Rows drawn on the canvas (list view shows all). Keep in sync with HOP_LIMIT in /api/graph. */
 const GRAPH_LIMIT = 12;
-const COL = 400; // horizontal gap between hop columns
+const COL = 470; // horizontal gap between hop columns
 const ROW = 84; // vertical pitch per 1st-degree node
 
 /**
@@ -107,7 +101,6 @@ function build(data: GraphResponse, feeders: Feeder[]) {
   const inbound = data.mode === "inbound";
   const shown = new Set(feeders.map((f) => f.entity.id));
   const max = Math.max(...feeders.map((f) => f.weighted_score), 1);
-  const maxRaw = Math.max(...feeders.map((f) => f.raw_count), 1);
   const total = feeders.reduce((n, f) => n + f.raw_count, 0) || 1;
   const height = Math.max(feeders.length - 1, 0) * ROW;
   const [x2, x1, x0] = inbound ? [0, COL, COL * 2] : [COL * 2, COL, 0];
@@ -122,12 +115,11 @@ function build(data: GraphResponse, feeders: Feeder[]) {
       position: { x: x0, y: height / 2 },
       data: {
         name: data.target.name,
-        sub: data.ro_known_total === 0 ? "RO — · no data" : `RO ${(data.overall_ro_rate * 100).toFixed(0)}% · ${data.confidence_level}`,
+        sub: data.ro_known_total === 0 ? "No return-offer data" : `${(data.overall_ro_rate * 100).toFixed(0)}% return offer · ${confidenceWord(data.confidence_level)}`,
         isTarget: true,
         slug: data.target.slug,
         domain: data.target.domain,
         tier: data.target.tier,
-        volume: 1,
         faded: false,
       },
     },
@@ -138,12 +130,11 @@ function build(data: GraphResponse, feeders: Feeder[]) {
         position: { x: x1, y: i * ROW },
         data: {
           name: f.entity.name,
-          sub: `${f.raw_count} interns · RO ${f.ro_known_total === 0 ? "—" : `${(f.bayesian_ro_rate * 100).toFixed(0)}%`}`,
+          sub: `${f.raw_count} intern${f.raw_count === 1 ? "" : "s"} · ${f.ro_known_total === 0 ? "no offer data" : `${(f.bayesian_ro_rate * 100).toFixed(0)}% return offer`}`,
           isTarget: false,
           slug: f.entity.slug,
           domain: f.entity.domain,
           tier: f.entity.tier,
-          volume: f.raw_count / maxRaw,
           faded: false,
         },
       }),
@@ -154,17 +145,15 @@ function build(data: GraphResponse, feeders: Feeder[]) {
     id: `h1-${f.entity.id}`,
     ...link(data.target.id, f.entity.id),
     type: "feed",
-    animated: f.entity.id === topId, // highest-volume path only
     data: {
       channel: f.top_channel,
       share: (f.raw_count / total) * 100,
-      color: tierColor(f.entity.tier),
+      color: "#475569",
       labelAt: inbound ? "source" : "target",
     },
     style: {
       strokeWidth: 1.5 + (f.weighted_score / max) * 5,
-      stroke: tierColor(f.entity.tier),
-      opacity: f.entity.id === topId ? 0.9 : 0.5,
+      stroke: f.entity.id === topId ? "#1d4ed8" : "#94a3b8",
     },
   }));
 
@@ -178,12 +167,11 @@ function build(data: GraphResponse, feeders: Feeder[]) {
     const g = hop2.get(h.entity.id) ?? { hop: h, rows: [] };
     g.rows.push(rowOf.get(h.via)!);
     hop2.set(h.entity.id, g);
-    const c = tierColor(h.entity.tier);
     edges.push({
       id: `h2-${h.via}-${h.entity.id}`,
       ...link(h.via, h.entity.id),
       type: "feed", // no data: unlabeled
-      style: { strokeWidth: 1.25, stroke: c, opacity: 0.35, strokeDasharray: "4 4" },
+      style: { strokeWidth: 1.25, stroke: "#cbd5e1", strokeDasharray: "4 4" },
     });
   }
   // nudge apart hop2 nodes that land on the same y
@@ -198,12 +186,11 @@ function build(data: GraphResponse, feeders: Feeder[]) {
       position: { x: x2, y },
       data: {
         name: hop.entity.name,
-        sub: `${inbound ? "feeds" : "hires"} ${hop.raw_count} · 2nd hop`,
+        sub: `${inbound ? "Feeds" : "Hires"} ${hop.raw_count} · 2nd hop`,
         isTarget: false,
         slug: hop.entity.slug,
         domain: hop.entity.domain,
         tier: hop.entity.tier,
-        volume: 0,
         faded: true,
       },
     });
@@ -248,8 +235,8 @@ export function HiringGraph({ data, onFocus }: Props) {
         }}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="oklch(1 0 0 / 14%)" gap={32} />
-        <Controls position="bottom-right" showInteractive={false} className="[&_button]:border-white/10 [&_button]:bg-card [&_button]:fill-foreground" />
+        <Background color="#cbd5e1" gap={24} size={1.2} />
+        <Controls position="bottom-right" showInteractive={false} className="overflow-hidden rounded-lg border border-border shadow-sm [&_button]:border-border [&_button]:bg-card [&_button]:fill-slate-700 [&_button:hover]:bg-slate-50" />
       </ReactFlow>
     </div>
   );

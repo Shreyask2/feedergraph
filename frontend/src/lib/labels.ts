@@ -43,12 +43,12 @@ export const typeLabel = pick(TYPE_LABELS);
 
 /** Semantic accent per tier (hex so it works in inline SVG/styles too). */
 export const TIER_COLOR: Record<string, string> = {
-  neolab: "#c084fc",
-  quant: "#fbbf24",
-  big_tech: "#38bdf8",
-  fintech: "#34d399",
-  standard: "#94a3b8",
-  startup: "#fb7185",
+  neolab: "#7c3aed",
+  quant: "#b45309",
+  big_tech: "#1d4ed8",
+  fintech: "#047857",
+  standard: "#64748b",
+  startup: "#be123c",
 };
 export const tierColor = (t: string) => TIER_COLOR[t] ?? TIER_COLOR.standard;
 
@@ -63,3 +63,7 @@ export const QUICK_PICKS = [
 
 export const initials = (name: string) =>
   name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
+/** Plain-English read of the confidence tier, for students. */
+export const confidenceWord = (c: string) => ({ low: "limited data", medium: "fair sample", high: "solid sample" })[c] ?? c;
+export const reports = (n: number) => `${n} report${n === 1 ? "" : "s"}`;

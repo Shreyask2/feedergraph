@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ENTITY_TYPES } from "@/lib/schemas";
@@ -59,11 +60,11 @@ export default function Admin() {
 
   return (
     <main className="min-h-dvh bg-background">
-      <header className="flex items-baseline gap-3 border-b border-border px-4 py-2">
-        <Link href="/" className="font-mono text-lg font-bold tracking-tight">FEEDERGRAPH</Link>
-        <span className="font-mono text-xs text-muted-foreground">moderation queue</span>
+      <header className="flex items-center gap-3 border-b border-border bg-card px-4 py-2.5">
+        <Link href="/" aria-label="FeederGraph home"><BrandLogo /></Link>
+        <span className="text-sm text-muted-foreground">/ Moderation queue</span>
       </header>
-      <div className="flex flex-col gap-4 p-4 font-mono text-sm">
+      <div className="flex flex-col gap-4 p-4 text-sm">
         <form onSubmit={(e) => { e.preventDefault(); load(); }} className="flex max-w-md gap-2">
           <Input type="password" value={secret} onChange={(e) => setSecret(e.target.value)} placeholder="admin secret" aria-label="Admin secret" />
           <Button type="submit">Load</Button>
@@ -71,7 +72,7 @@ export default function Admin() {
         {msg && <p role="status" className="text-destructive">{msg}</p>}
         {subs?.length === 0 && <p className="text-muted-foreground">queue empty</p>}
         {subs?.map((s) => (
-          <section key={s.id} className="border border-border p-3">
+          <section key={s.id} className="rounded-lg border border-border bg-card p-3 shadow-sm">
             <p className="mb-2 text-xs text-muted-foreground">{s.flag_reason ? FLAG_LABELS[s.flag_reason] ?? s.flag_reason.replace(/_/g, " ") : "flagged"} · {s.id.slice(0, 8)}</p>
             {[s.target_company_raw, ...(s.prior_experiences_raw ?? [])].map((raw, i) => (
               <Row key={`${raw}-${i}`} raw={raw} ents={ents} onResolve={(b) => resolve(s, raw, b)} />
@@ -79,8 +80,8 @@ export default function Admin() {
           </section>
         ))}
         {fb && (
-          <section className="border border-border p-3">
-            <h2 className="mb-2 text-xs font-bold uppercase tracking-wider">Feedback ({fb.length})</h2>
+          <section className="rounded-lg border border-border bg-card p-3 shadow-sm">
+            <h2 className="mb-2 text-sm font-semibold">Feedback ({fb.length})</h2>
             {fb.length === 0 && <p className="text-muted-foreground">none yet</p>}
             {fb.map((f) => (
               <div key={f.id} className="border-t border-border py-2 first:border-t-0">
@@ -89,7 +90,7 @@ export default function Admin() {
                 </p>
                 {(f.github_username || f.contact) && (
                   <p className="flex flex-wrap gap-2 text-xs">
-                    {f.github_username && <span className="border border-sky-300 px-1 text-sky-300">@{f.github_username}</span>}
+                    {f.github_username && <span className="rounded border border-blue-200 bg-blue-50 px-1 text-blue-700">@{f.github_username}</span>}
                     {f.contact && <span className="break-all">{f.contact}</span>}
                   </p>
                 )}

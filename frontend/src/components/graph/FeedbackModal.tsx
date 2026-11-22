@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 
 const CATEGORIES = [
   { v: "bug", l: "Bug" },
-  { v: "missing_company", l: "Missing Company" },
-  { v: "feature", l: "Feature Idea" },
+  { v: "missing_company", l: "Missing company" },
+  { v: "feature", l: "Feature idea" },
   { v: "other", l: "Other" },
 ] as const;
 
@@ -60,7 +60,7 @@ export function FeedbackModal() {
 
   return (
     <>
-      <button type="button" onClick={show} className="font-mono text-xs font-bold underline-offset-4 hover:underline">
+      <button type="button" onClick={show} className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900">
         Feedback
       </button>
       {open && (
@@ -68,29 +68,29 @@ export function FeedbackModal() {
           role="dialog"
           aria-modal="true"
           aria-label="Send feedback"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
           onClick={(e) => e.target === e.currentTarget && setOpen(false)}
         >
-          <div className="glass max-h-full w-full max-w-[480px] overflow-y-auto overflow-x-hidden font-mono whitespace-normal break-words">
-            <header className="flex items-center justify-between border-b border-zinc-800/80 px-4 py-3">
-              <h2 className="text-sm font-bold uppercase tracking-wider">Feedback</h2>
+          <div className="max-h-full w-full max-w-[480px] overflow-y-auto overflow-x-hidden rounded-xl border border-border bg-card shadow-xl whitespace-normal break-words">
+            <header className="flex items-center justify-between border-b border-border px-4 py-3">
+              <h2 className="text-base font-semibold">Send feedback</h2>
               <button
                 ref={closeRef}
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close"
-                className="inline-flex size-7 items-center justify-center border border-zinc-800/80 hover:bg-white/10"
+                className="inline-flex size-7 items-center justify-center rounded-md border border-border hover:bg-slate-100"
               >
                 <X className="size-4" />
               </button>
             </header>
             {status === "done" ? (
-              <div className="flex flex-col gap-3 px-4 py-4 text-xs">
-                <p role="status" className="text-sky-300">Thanks — feedback received.</p>
+              <div className="flex flex-col gap-3 px-4 py-4 text-sm">
+                <p role="status" className="text-blue-700">Thanks — feedback received.</p>
                 <Button size="sm" variant="outline" onClick={() => setOpen(false)} className="self-start">Close</Button>
               </div>
             ) : (
-              <form onSubmit={submit} className="flex flex-col gap-3 px-4 py-4 text-xs">
+              <form onSubmit={submit} className="flex flex-col gap-3 px-4 py-4 text-sm">
                 <div role="radiogroup" aria-label="Category" className="flex flex-wrap gap-2">
                   {CATEGORIES.map((c) => (
                     <button
@@ -99,7 +99,7 @@ export function FeedbackModal() {
                       role="radio"
                       aria-checked={category === c.v}
                       onClick={() => setCategory(c.v)}
-                      className={`border px-2 py-1 ${category === c.v ? "border-sky-300 bg-sky-400/10 text-sky-300" : "border-zinc-800/80 hover:bg-white/10"}`}
+                      className={`rounded-full border px-3 py-1 ${category === c.v ? "border-blue-600 bg-blue-50 text-blue-700" : "border-border hover:bg-slate-100"}`}
                     >
                       {c.l}
                     </button>
@@ -114,7 +114,7 @@ export function FeedbackModal() {
                   rows={5}
                   aria-label="Message"
                   placeholder="What's on your mind?"
-                  className="w-full resize-none border border-zinc-800/80 bg-transparent p-2 outline-none focus:border-sky-300"
+                  className="w-full resize-none rounded-lg border border-input bg-card p-2.5 outline-none focus:border-ring focus:ring-3 focus:ring-ring/30"
                 />
                 <input
                   value={contact}
@@ -122,7 +122,7 @@ export function FeedbackModal() {
                   maxLength={120}
                   aria-label="Contact for follow-up (optional)"
                   placeholder="Optional: @handle or email for follow-up"
-                  className="w-full border border-zinc-800/80 bg-transparent px-2 py-1.5 outline-none focus:border-sky-300"
+                  className="w-full rounded-lg border border-input bg-card px-2.5 py-2 outline-none focus:border-ring focus:ring-3 focus:ring-ring/30"
                 />
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-muted-foreground">{message.length}/1000</span>

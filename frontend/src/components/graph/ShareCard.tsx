@@ -48,9 +48,10 @@ export function ShareCard({ data, role, shareUrl }: { data: GraphResponse; role:
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 border border-zinc-800/80 px-2 py-0.5 font-mono text-xs font-bold hover:border-white/30"
+        aria-label="Share path card"
+        className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
       >
-        <Share2 className="size-3.5" /> <span className="max-sm:hidden">Share Path Card</span><span className="sm:hidden">Share</span>
+        <Share2 className="size-3.5" /> <span className="max-sm:hidden">Share path card</span>
       </button>
 
       {open && (
@@ -58,51 +59,51 @@ export function ShareCard({ data, role, shareUrl }: { data: GraphResponse; role:
           role="dialog"
           aria-modal="true"
           aria-label="Share path card"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
           onClick={(e) => e.target === e.currentTarget && setOpen(false)}
         >
           <div className="w-full max-w-[560px]">
             {/* The card itself: fixed composition so screenshots look the same everywhere. */}
             <article
-              className="relative overflow-hidden border border-zinc-800/80 bg-[oklch(0.15_0.012_255)] p-6"
-              style={{ backgroundImage: `radial-gradient(ellipse 70% 60% at 100% 0%, ${accent}2e, transparent 70%)` }}
+              className="relative overflow-hidden rounded-xl border border-border bg-card p-6 shadow-xl"
+              style={{ borderTop: `4px solid ${accent}` }}
             >
-              <header className="flex items-baseline justify-between font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-                <span className="font-bold text-foreground">FeederGraph</span>
+              <header className="flex items-baseline justify-between text-sm text-muted-foreground">
+                <span className="font-semibold text-slate-900">FeederGraph</span>
                 <span>
-                  {data.mode === "inbound" ? "feeds into" : "paths from"} · {role ? roleLabel(role) : "all roles"}
+                  {data.mode === "inbound" ? "Feeds into" : "Paths from"} · {role ? roleLabel(role) : "all roles"}
                 </span>
               </header>
 
               <ol className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-3" aria-label="Top trajectory">
                 {path.map((e, i) => (
                   <li key={e.id} className="flex min-w-0 items-center gap-2">
-                    {i > 0 && <span className="font-mono text-muted-foreground" aria-hidden>→</span>}
+                    {i > 0 && <span className="text-slate-400" aria-hidden>→</span>}
                     <span
-                      className="flex min-w-0 items-center gap-2 rounded-lg border px-2 py-1.5"
-                      style={{ borderColor: `${tierColor(e.tier)}66`, opacity: i === (data.mode === "inbound" ? 0 : 2) && path.length === 3 ? 0.65 : 1 }}
+                      className="flex min-w-0 items-center gap-2 rounded-lg border bg-card px-2.5 py-1.5 shadow-sm"
+                      style={{ borderColor: `${tierColor(e.tier)}55`, opacity: i === (data.mode === "inbound" ? 0 : 2) && path.length === 3 ? 0.65 : 1 }}
                     >
                       <CompanyLogo slug={e.slug} domain={e.domain} name={e.name} tier={e.tier} className="size-6" />
-                      <span className={`truncate text-sm font-semibold ${e.id === data.target.id ? "text-base font-bold" : ""}`}>{e.name}</span>
+                      <span className={`truncate text-sm font-medium text-slate-900 ${e.id === data.target.id ? "text-base font-semibold" : ""}`}>{e.name}</span>
                     </span>
                   </li>
                 ))}
               </ol>
 
-              <dl className="mt-6 grid grid-cols-3 gap-3 font-mono">
+              <dl className="mt-6 grid grid-cols-3 gap-3">
                 {[
-                  ["Paths", t.paths.toLocaleString()],
+                  ["Total paths", t.paths.toLocaleString()],
                   ["Verified", `${t.verifiedPct.toFixed(0)}%`],
-                  ["Smoothed RO", data.ro_known_total === 0 ? "—" : `${t.ro.toFixed(1)}%`],
+                  ["Est. return offer", data.ro_known_total === 0 ? "—" : `${t.ro.toFixed(1)}%`],
                 ].map(([k, v]) => (
-                  <div key={k} className="border border-zinc-800/80 bg-black/25 px-3 py-2">
-                    <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{k}</dt>
-                    <dd className="text-xl font-bold tabular-nums">{v}</dd>
+                  <div key={k} className="rounded-lg border border-border bg-slate-50 px-3 py-2">
+                    <dt className="text-xs text-muted-foreground">{k}</dt>
+                    <dd className="text-xl font-semibold tabular-nums text-slate-900">{v}</dd>
                   </div>
                 ))}
               </dl>
-              <p className="mt-4 font-mono text-[11px] text-muted-foreground">
-                {data.mode === "inbound" ? "Top feeder" : "Top destination"}: <span className="text-foreground">{t.top}</span> · crowdsourced, Bayesian-smoothed
+              <p className="mt-4 text-xs text-muted-foreground">
+                {data.mode === "inbound" ? "Top feeder" : "Top destination"}: <span className="font-medium text-slate-900">{t.top}</span> · crowdsourced and smoothed for small samples
               </p>
             </article>
 
@@ -110,17 +111,17 @@ export function ShareCard({ data, role, shareUrl }: { data: GraphResponse; role:
               <button
                 type="button"
                 onClick={copy}
-                className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-white font-sans text-sm font-semibold text-black hover:bg-white/90"
+                className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
               >
                 {copied ? <Check className="size-4" /> : <Link2 className="size-4" />}
-                {copied ? "Copied" : "Copy Link"}
+                {copied ? "Copied" : "Copy link"}
               </button>
               <button
                 ref={closeRef}
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close"
-                className="inline-flex size-10 items-center justify-center rounded-lg border border-white/15 hover:bg-white/10"
+                className="inline-flex size-10 items-center justify-center rounded-lg border border-border bg-card hover:bg-slate-50"
               >
                 <X className="size-4" />
               </button>

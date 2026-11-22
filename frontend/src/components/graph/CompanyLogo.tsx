@@ -30,13 +30,13 @@ interface Props {
   className?: string;
 }
 
-/** Brand mark on a light tile (so dark logos stay visible): Clearbit, then DuckDuckGo, then to a tier-tinted initial badge. */
+/** Brand mark straight on the light card: Clearbit, then DuckDuckGo, then to a tier-tinted initial badge. */
 export function CompanyLogo({ slug, domain, name, tier, className = "size-8" }: Props) {
   const srcs = slug === "google" ? [] : sources(slug, domain);
   const [i, setI] = useState(0);
   const c = tierColor(tier);
 
-  const tile = "flex shrink-0 items-center justify-center rounded-md bg-white p-[3px] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.08)]";
+  const tile = "flex shrink-0 items-center justify-center overflow-hidden rounded-md p-0.5";
   if (slug === "google") {
     return (
       <span className={`${className} ${tile}`}>
@@ -47,8 +47,8 @@ export function CompanyLogo({ slug, domain, name, tier, className = "size-8" }: 
   if (i >= srcs.length) {
     return (
       <span
-        className={`${className} flex shrink-0 items-center justify-center rounded-md border font-mono text-[0.7em] font-bold`}
-        style={{ color: c, borderColor: `${c}66`, background: `${c}1f` }}
+        className={`${className} flex shrink-0 items-center justify-center rounded-md border text-[0.7em] font-semibold`}
+        style={{ color: c, borderColor: `${c}66`, background: `${c}14` }}
         aria-hidden
       >
         {initials(name)}

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { GraphControls, type View } from "@/components/graph/GraphControls";
+import { X } from "lucide-react";
+import { CompanySearch, GraphControls, PopularPicks, type View } from "@/components/graph/GraphControls";
 import { HiringGraph } from "@/components/graph/HiringGraph";
 import { MobileFeederList } from "@/components/graph/MobileFeederList";
 import { CompanyInspector } from "@/components/graph/CompanyInspector";
@@ -84,42 +85,54 @@ export default function Explorer() {
     setError(null);
   };
 
+  const subject = data?.target.name ?? nameOf(company);
   return (
-    <main className="terminal-bg flex h-dvh flex-col">
-      <header className="flex flex-wrap items-center gap-x-3 border-b border-zinc-800/80 px-4 py-1.5">
+    <main className="flex min-h-dvh flex-col bg-background">
+      <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border bg-card px-4 py-2.5">
         <h1>
           <Link href="/" aria-label="FeederGraph home" onClick={(e) => { e.preventDefault(); resetAll(); }}>
             <BrandLogo />
           </Link>
         </h1>
-        <span className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground max-sm:hidden">
-          {mode === "inbound" ? "who feeds into" : "where do alumni go from"} {data?.target.name ?? nameOf(company)}?
+        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground max-sm:hidden">
+          {mode === "inbound" ? "Who feeds into" : "Where alumni go from"} <span className="font-medium text-slate-900">{subject}</span>?
         </span>
-        <div className="flex w-full items-center justify-between gap-2 self-center sm:gap-3 whitespace-nowrap sm:ml-auto sm:w-auto sm:justify-start">
+        <div className="flex w-full items-center justify-between gap-2 whitespace-nowrap sm:ml-auto sm:w-auto sm:justify-start sm:gap-4 max-sm:gap-x-3">
           <TopLaunchpads onPick={(s) => { setMode("outbound"); setTrail([s]); }} />
           {data && <ShareCard data={data} role={role} shareUrl={`${window.location.origin}/?${shareQs}`} />}
           <MethodologyModal />
           <FeedbackModal />
-          <Link href="/submit" className="font-mono text-xs font-bold underline-offset-4 hover:underline">Submit<span className="max-sm:hidden"> Path</span></Link>
+          <Link href="/submit" className="rounded-md bg-slate-900 px-3 py-1 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800">
+            Submit<span className="max-sm:hidden"> a path</span>
+          </Link>
         </div>
       </header>
 
       {showHero && data && (
-        <section className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-zinc-800/80 bg-sky-400/5 px-4 py-1.5 font-mono text-xs">
-          <p className="min-w-0 basis-full sm:flex-1 sm:basis-0">
-            <span className="font-bold">Reverse-Engineered Tech Internship Hiring Graph</span>
-            <span className="text-muted-foreground max-sm:hidden"> · Built for Direct Consideration</span>
-          </p>
-          <span className="mr-auto tabular-nums text-muted-foreground sm:mr-0">
-            <b className="text-foreground">{data.totals.entities.toLocaleString()}</b> entities ·{" "}
-            <b className="text-foreground">{data.totals.paths.toLocaleString()}</b> paths
-          </span>
-          <Link href="/submit" className="border border-sky-400/60 px-2 py-0.5 font-bold text-sky-200 hover:bg-sky-400/15">
-            Submit Your Path
-          </Link>
-          <button type="button" onClick={() => setShowHero(false)} aria-label="Dismiss banner" className="px-1 text-muted-foreground hover:text-foreground">
-            ✕
+        <section className="relative border-b border-border bg-card px-4 py-8 sm:py-10">
+          <button type="button" onClick={() => setShowHero(false)} aria-label="Dismiss intro" className="absolute top-3 right-3 rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700">
+            <X className="size-4" />
           </button>
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-medium text-blue-700">Built for the Direct Consideration community</p>
+            <h2 className="mt-2 font-serif text-4xl leading-[1.1] font-semibold tracking-tight text-slate-900 sm:text-5xl">
+              Where tech interns <em className="text-blue-700">actually</em> come from
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-base text-slate-600">
+              Crowdsourced internship paths, traced company by company, with the return-offer odds that go with them.
+            </p>
+            <div className="mx-auto mt-6 max-w-xl text-left">
+              <CompanySearch entities={data.entities} onPick={(s) => { setTrail([s]); setShowHero(false); }} large />
+            </div>
+            <div className="mt-3 flex justify-center">
+              <PopularPicks company={company} onCompany={(s) => { setTrail([s]); setShowHero(false); }} />
+            </div>
+            <p className="mt-5 text-sm text-slate-500 tabular-nums">
+              <b className="font-semibold text-slate-900">{data.totals.entities.toLocaleString()}</b> companies ·{" "}
+              <b className="font-semibold text-slate-900">{data.totals.paths.toLocaleString()}</b> reported paths ·{" "}
+              <Link href="/submit" className="font-medium text-blue-700 underline-offset-4 hover:underline">Add yours</Link>
+            </p>
+          </div>
         </section>
       )}
 
@@ -130,7 +143,8 @@ export default function Explorer() {
         verifiedOnly={verifiedOnly}
         view={view}
         mode={mode}
-        targetName={data?.target.name ?? nameOf(company)}
+        targetName={subject}
+        hideSearch={showHero && !!data}
         onMode={setMode}
         onCompany={(s) => setTrail([s])}
         onRole={setRole}
@@ -139,13 +153,13 @@ export default function Explorer() {
       />
 
       {trail.length > 1 && (
-        <nav className="flex flex-wrap items-center gap-1 border-b border-zinc-800/80 px-4 py-1 font-mono text-xs">
+        <nav className="flex flex-wrap items-center gap-1 border-b border-border bg-card px-4 py-1.5 text-sm">
           {trail.map((s, i) => (
             <button
               key={`${s}-${i}`}
               type="button"
               onClick={() => setTrail((t) => t.slice(0, i + 1))}
-              className={i === trail.length - 1 ? "font-bold" : "text-muted-foreground hover:underline"}
+              className={i === trail.length - 1 ? "font-semibold text-slate-900" : "text-muted-foreground hover:text-slate-900 hover:underline"}
             >
               {i > 0 && "← "}
               {nameOf(s)}
@@ -154,7 +168,7 @@ export default function Explorer() {
           <button
             type="button"
             onClick={() => setTrail([trail[0]])}
-            className="ml-auto border border-zinc-800/80 px-2 py-0.5 uppercase text-muted-foreground hover:text-foreground"
+            className="ml-auto rounded-md border border-border px-2 py-0.5 text-muted-foreground hover:bg-slate-50 hover:text-slate-900"
           >
             Reset
           </button>
@@ -162,10 +176,10 @@ export default function Explorer() {
       )}
 
       {error && (
-        <div className="p-4 font-mono text-sm">
+        <div className="p-4 text-sm">
           <p className="text-destructive">Error: {error}</p>
-          <button type="button" onClick={resetAll} className="mt-2 border border-zinc-800/80 px-2 py-0.5 font-bold hover:bg-zinc-800/50">
-            Return to Default Graph
+          <button type="button" onClick={resetAll} className="mt-2 rounded-md border border-border bg-card px-3 py-1 font-medium shadow-sm hover:bg-slate-50">
+            Back to the default graph
           </button>
         </div>
       )}
@@ -173,7 +187,7 @@ export default function Explorer() {
       {data && <TelemetryStrip data={data} />}
 
       {data && (
-        <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+        <div className="flex flex-1 flex-col md:min-h-[600px] md:flex-row">
           <div className="relative min-h-[420px] flex-1 overflow-auto md:min-h-0">
             {view === "graph" ? (
               <HiringGraph data={data} onFocus={focus} />

@@ -55,14 +55,14 @@ function GitHubVerify() {
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/20 p-3">
+    <div className="flex flex-col gap-2 rounded-xl border border-border bg-slate-50 p-3">
       {handle ? (
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 font-mono text-xs font-semibold text-emerald-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
             <BadgeCheck className="size-3.5" /> Verified as @{handle}
           </span>
-          <span className="font-mono text-[11px] text-muted-foreground">2x trust weight</span>
-          <button type="button" onClick={signOut} className="ml-auto inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground hover:text-foreground">
+          <span className="text-[11px] text-muted-foreground">2x trust weight</span>
+          <button type="button" onClick={signOut} className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground">
             <LogOut className="size-3" /> sign out
           </button>
         </div>
@@ -71,22 +71,22 @@ function GitHubVerify() {
           type="button"
           onClick={signIn}
           disabled={handle === undefined}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white font-sans text-sm font-semibold text-black transition-colors hover:bg-white/90 disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-900 font-sans text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:opacity-60"
         >
           <GitHubMark /> Verify with GitHub (2x Trust Weight)
         </button>
       )}
-      <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">
+      <p className="text-[11px] leading-relaxed text-muted-foreground">
         Optional. Accounts 30+ days old with at least one original repo count at 1.0 weight (vs 0.5). One verified entry per
         season. We only read your public handle.
       </p>
-      {err && <p role="alert" className="font-mono text-xs text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
     </div>
   );
 }
 
-const sel = "h-9 w-full rounded-lg border border-input bg-background px-2 font-mono text-sm";
-const lbl = "flex flex-col gap-1 font-mono text-xs uppercase text-muted-foreground";
+const sel = "h-9 w-full rounded-lg border border-input bg-background px-2 text-sm";
+const lbl = "flex flex-col gap-1 text-sm font-medium text-slate-700";
 
 export function SubmissionForm({ suggestions = [] }: { suggestions?: string[] }) {
   const [status, setStatus] = useState<{ ok: boolean; msg: string } | null>(null);
@@ -129,10 +129,10 @@ export function SubmissionForm({ suggestions = [] }: { suggestions?: string[] })
   }
 
   return (
-    <form onSubmit={onSubmit} className="glass mx-auto flex w-full max-w-xl flex-col gap-4 rounded-2xl [&_input]:h-9 p-5 shadow-2xl sm:p-7">
+    <form onSubmit={onSubmit} className="mx-auto flex w-full max-w-xl flex-col gap-4 rounded-2xl border border-border bg-card [&_input]:h-9 p-5 shadow-sm sm:p-7">
       <header className="space-y-1">
-        <h2 className="font-sans text-xl font-bold">Add your internship path</h2>
-        <p className="font-mono text-xs text-muted-foreground">
+        <h2 className="font-serif text-2xl font-semibold tracking-tight">Add your internship path</h2>
+        <p className="text-xs text-muted-foreground">
           Anonymous and takes a minute. Verify with GitHub and your entry counts at full weight, so verified paths move the
           graph most.
         </p>
@@ -150,7 +150,7 @@ export function SubmissionForm({ suggestions = [] }: { suggestions?: string[] })
           <Input name="season" required placeholder="Summer 2026" />
         </label>
       </div>
-      <label className={lbl}>Prior experiences (comma separated)
+      <label className={lbl}>Prior experiences (comma-separated)
         <Input name="prior" placeholder="Capital One, Mozilla, FAIR" />
       </label>
       <div className="grid grid-cols-2 gap-4">
@@ -159,15 +159,15 @@ export function SubmissionForm({ suggestions = [] }: { suggestions?: string[] })
         </label>
         <label className={lbl}>Return offer?
           <select name="ro" className={sel} defaultValue="">
-            <option value="">unknown / ongoing</option>
-            <option value="yes">yes</option>
-            <option value="no">no</option>
+            <option value="">Unknown / ongoing</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
           </select>
         </label>
       </div>
       <Button type="submit" disabled={busy}>{busy ? "Submitting…" : "Submit path"}</Button>
       {status && (
-        <p role="status" className={`font-mono text-sm ${status.ok ? "text-foreground" : "text-destructive"}`}>{status.msg}</p>
+        <p role="status" className={`text-sm ${status.ok ? "text-foreground" : "text-destructive"}`}>{status.msg}</p>
       )}
     </form>
   );
