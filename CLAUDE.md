@@ -1,5 +1,6 @@
 # CLAUDE.md — FeederGraph Project Rules
 ## Source of Truth
+* **Caveman Mode:** Always use Caveman terse/compressed style for all explanations and summaries until told otherwise.
 * Always read `PLAN.md` first before making architectural or schema decisions.
 * Execute strictly **one phase at a time** as requested by the user, then stop and summarize what was created and how to verify it.
 ## Active Skills & Workflow
