@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BadgeCheck, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,12 @@ const lbl = "flex flex-col gap-1 font-mono text-xs uppercase text-muted-foregrou
 export function SubmissionForm({ suggestions = [] }: { suggestions?: string[] }) {
   const [status, setStatus] = useState<{ ok: boolean; msg: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const targetRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get("company");
+    if (c && targetRef.current) targetRef.current.value = c.slice(0, 100);
+  }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -133,7 +139,7 @@ export function SubmissionForm({ suggestions = [] }: { suggestions?: string[] })
       </header>
       <GitHubVerify />
       <label className={lbl}>Target company
-        <Input name="target" required maxLength={100} placeholder="e.g. Jane Street" list="entity-suggestions" autoComplete="off" />
+        <Input ref={targetRef} name="target" required maxLength={100} placeholder="e.g. Jane Street" list="entity-suggestions" autoComplete="off" />
         <datalist id="entity-suggestions">{suggestions.map((n) => <option key={n} value={n} />)}</datalist>
       </label>
       <div className="grid grid-cols-2 gap-4">

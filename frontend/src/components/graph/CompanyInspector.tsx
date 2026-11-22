@@ -31,7 +31,11 @@ export function CompanyInspector({ data }: { data: GraphResponse }) {
         <p className="text-muted-foreground uppercase">
           smoothed return-offer rate{data.mode === "outbound" && " at destinations"}
         </p>
-        <p className="text-3xl font-bold">{(data.overall_ro_rate * 100).toFixed(1)}%</p>
+        {data.ro_known_total === 0 ? (
+          <p className="text-lg font-bold text-muted-foreground">No RO data yet</p>
+        ) : (
+          <p className="text-3xl font-bold">{(data.overall_ro_rate * 100).toFixed(1)}%</p>
+        )}
         <div className="mt-1 flex items-center gap-2">
           <Badge variant="outline" className={CONF_STYLE[data.confidence_level]}>
             {data.confidence_level} confidence

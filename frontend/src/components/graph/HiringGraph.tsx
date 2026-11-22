@@ -21,6 +21,7 @@ import "@xyflow/react/dist/style.css";
 import type { Feeder, GraphResponse, SecondHop } from "@/lib/types";
 import { channelLabel, tierColor } from "@/lib/labels";
 import { CompanyLogo } from "./CompanyLogo";
+import { EmptyPaths } from "./EmptyPaths";
 
 type CompanyData = {
   name: string;
@@ -221,6 +222,13 @@ interface Props {
 
 export function HiringGraph({ data, onFocus }: Props) {
   const { nodes, edges } = useMemo(() => build(data, data.feeders.slice(0, GRAPH_LIMIT)), [data]);
+
+  if (data.feeders.length === 0)
+    return (
+      <div className="absolute inset-0">
+        <EmptyPaths target={data.target} />
+      </div>
+    );
 
   return (
     <div className="absolute inset-0">

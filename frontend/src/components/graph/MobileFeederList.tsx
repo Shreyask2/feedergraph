@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import type { GraphResponse } from "@/lib/types";
 import { channelLabel, tierColor } from "@/lib/labels";
 import { CompanyLogo } from "./CompanyLogo";
+import { EmptyPaths } from "./EmptyPaths";
 
 interface Props {
   data: GraphResponse;
@@ -13,12 +14,7 @@ interface Props {
 export function MobileFeederList({ data, onFocus }: Props) {
   const { feeders } = data;
   const inbound = data.mode === "inbound";
-  if (!feeders.length)
-    return (
-      <p className="p-6 font-mono text-sm text-muted-foreground">
-        No {inbound ? "feeders" : "destinations"} match filters.
-      </p>
-    );
+  if (!feeders.length) return <EmptyPaths target={data.target} />;
   const hop2 = new Map(data.second_hop.map((h) => [h.via, h.entity]));
   const max = Math.max(...feeders.map((f) => f.weighted_score), 1);
 
